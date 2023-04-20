@@ -183,7 +183,7 @@ exports.getDoneAssignments = async (req, res) => {
   try {
     const currentTime = Math.floor(Date.now() / 1000);
     const data = (
-      await getRawAssignments('BlDgVZFg74TelAWAaPzgCrJd7MxAarVGjPTRu1Aq', {
+      await getRawAssignments(req.session.token.access_token, {
         year,
         semester,
         course_no,
@@ -213,7 +213,7 @@ exports.getMissedAssignments = async (req, res) => {
   try {
     const currentTime = Math.floor(Date.now() / 1000);
     const data = (
-      await getRawAssignments('BlDgVZFg74TelAWAaPzgCrJd7MxAarVGjPTRu1Aq', {
+      await getRawAssignments(req.session.token.access_token, {
         year,
         semester,
         course_no,
@@ -243,7 +243,7 @@ exports.getAssignedAssignments = async (req, res) => {
   try {
     const currentTime = Math.floor(Date.now() / 1000);
     const data = (
-      await getRawAssignments('BlDgVZFg74TelAWAaPzgCrJd7MxAarVGjPTRu1Aq', {
+      await getRawAssignments(req.session.token.access_token, {
         year,
         semester,
         course_no,
