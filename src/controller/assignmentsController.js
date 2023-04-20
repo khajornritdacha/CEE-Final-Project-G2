@@ -1,3 +1,6 @@
+// TODO: add refresh token
+// TODO: optimize the number of reading db
+
 const dotenv = require('dotenv');
 dotenv.config();
 const {
@@ -36,7 +39,7 @@ const writeAssignments = async (updateItemRequest) => {
   }
 };
 
-const getCourses = async (access_token, options) => {
+const fetchCourses = async (access_token, options) => {
   const { year, semester, course_no } = options;
   try {
     const url = new URL(
@@ -128,7 +131,7 @@ const syncAllCoursesAssignments = async (access_token, options) => {
   try {
     const dbItems = await readAssignmentsDb(options);
     const dbItemsId = dbItems.map((item) => item.item_id);
-    const courses = await getCourses(access_token, options);
+    const courses = await fetchCourses(access_token, options);
     const mcvItems = await getCoursesAssignments(access_token, courses);
     const updateItemRequest = [];
     for (const item of mcvItems) {
@@ -171,6 +174,17 @@ const getRawAssignments = async (access_token, options) => {
   } catch (err) {
     console.log(err);
     return null;
+  }
+};
+
+// TODO: test this route
+exports.getCourses = async (req, res) => {
+  try {
+    const data = await fetchCourses(req.session.token.access_token, req.query);
+    return res.json(data);
+  } catch (err) {
+    console.log(err);
+    return res.sendStatus(400);
   }
 };
 
