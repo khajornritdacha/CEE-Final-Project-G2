@@ -174,6 +174,66 @@ const getRawAssignments = async (access_token, options) => {
   }
 };
 
+exports.getDoneAssignments = async (req, res) => {
+  const { year, semester, course_no } = req.query;
+  if (!year || !semester)
+    return res
+      .status(400)
+      .json({ message: 'Year or semester is not provided.' });
+  try {
+    const currentTime = Math.floor(Date.now() / 1000);
+    const data = (
+      await getRawAssignments('BlDgVZFg74TelAWAaPzgCrJd7MxAarVGjPTRu1Aq', {
+        year,
+        semester,
+        course_no,
+      })
+    ).filter((item) => {
+      return item.is_finished && currentTime >= Number(item.due_time);
+    });
+
+    // Sort by most recent due time
+    data.sort((a, b) => {
+      return b.due_time - a.due_time;
+    });
+
+    return res.json(data);
+  } catch (err) {
+    console.log(err);
+    return res.sendStatus(400);
+  }
+};
+
+exports.getMissedAssignments = async (req, res) => {
+  const { year, semester, course_no } = req.query;
+  if (!year || !semester)
+    return res
+      .status(400)
+      .json({ message: 'Year or semester is not provided.' });
+  try {
+    const currentTime = Math.floor(Date.now() / 1000);
+    const data = (
+      await getRawAssignments('BlDgVZFg74TelAWAaPzgCrJd7MxAarVGjPTRu1Aq', {
+        year,
+        semester,
+        course_no,
+      })
+    ).filter((item) => {
+      return !item.is_finished && currentTime >= Number(item.due_time);
+    });
+
+    // Sort by most recent due time
+    data.sort((a, b) => {
+      return b.due_time - a.due_time;
+    });
+
+    return res.json(data);
+  } catch (err) {
+    console.log(err);
+    return res.sendStatus(400);
+  }
+};
+
 exports.getAssignedAssignments = async (req, res) => {
   const { year, semester, course_no } = req.query;
   if (!year || !semester)
@@ -188,7 +248,11 @@ exports.getAssignedAssignments = async (req, res) => {
         semester,
         course_no,
       })
-    ).filter((item) => currentTime < Number(item.due_time));
+    ).filter((item) => {
+      return !item.is_finished && currentTime < Number(item.due_time);
+    });
+
+    // Sort by earliest due time
     data.sort((a, b) => {
       return a.due_time - b.due_time;
     });

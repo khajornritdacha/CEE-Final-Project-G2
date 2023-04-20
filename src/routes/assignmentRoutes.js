@@ -4,9 +4,7 @@ const router = express.Router();
 
 router.post('/', assignmentController.addAssignment);
 router.get('/', assignmentController.getAssignedAssignments);
-
-router.get('/', (req, res) => {
-  res.send('hello');
-});
+router.get('/missed', assignmentController.getMissedAssignments);
+router.get('/done', assignmentController.getDoneAssignments);
 
 module.exports = router;
