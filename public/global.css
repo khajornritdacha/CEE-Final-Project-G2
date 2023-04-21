@@ -2,6 +2,203 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+.navbar {
+  width: 100%;
+  height: 80px;
+  box-shadow: 0px -1px 20px rgba(0, 110, 233, 0.1);
+}
+
+.header {
+  width: 100%;
+  padding: 20px 27px 14px;
+}
+
+.header > div > i {
+  padding-left: 30px;
+}
+
+.primary {
+  color: #006ee9;
+}
+
+.inline-block {
+  display: inline-block;
+}
+
+/* Flex container */
+.flex {
+  display: flex;
+}
+.inline-flex {
+  display: inline-flex;
+}
+
+/* Flex direction */
+.flex-row {
+  flex-direction: row;
+}
+.flex-row-reverse {
+  flex-direction: row-reverse;
+}
+.flex-col {
+  flex-direction: column;
+}
+.flex-col-reverse {
+  flex-direction: column-reverse;
+}
+
+/* Flex wrap */
+.flex-wrap {
+  flex-wrap: wrap;
+}
+.flex-wrap-reverse {
+  flex-wrap: wrap-reverse;
+}
+.flex-no-wrap {
+  flex-wrap: nowrap;
+}
+
+/* Flex items alignment */
+.items-stretch {
+  align-items: stretch;
+}
+.items-start {
+  align-items: flex-start;
+}
+.items-center {
+  align-items: center;
+}
+.items-end {
+  align-items: flex-end;
+}
+.items-baseline {
+  align-items: baseline;
+}
+
+/* Flex content alignment */
+.align-start {
+  align-content: flex-start;
+}
+.align-center {
+  align-content: center;
+}
+.align-end {
+  align-content: flex-end;
+}
+.align-between {
+  align-content: space-between;
+}
+.align-around {
+  align-content: space-around;
+}
+.align-evenly {
+  align-content: space-evenly;
+}
+
+/* Flex items justification */
+.justify-start {
+  justify-content: flex-start;
+}
+.justify-center {
+  justify-content: center;
+}
+.justify-end {
+  justify-content: flex-end;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.justify-around {
+  justify-content: space-around;
+}
+.justify-evenly {
+  justify-content: space-evenly;
+}
+
+/* Flex items sizing */
+.flex-grow {
+  flex-grow: 1;
+}
+.flex-grow-0 {
+  flex-grow: 0;
+}
+.flex-shrink {
+  flex-shrink: 1;
+}
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
+
+/* Position classes */
+.static {
+  position: static;
+}
+.relative {
+  position: relative;
+}
+.absolute {
+  position: absolute;
+}
+.fixed {
+  position: fixed;
+}
+.z-1 {
+  z-index: 1;
+}
+
+.top-0 {
+  top: 0;
+}
+
+.bot-0 {
+  bottom: 0;
+}
+
+/* Font size classes */
+.text-xs {
+  font-size: 10px;
+}
+.text-sm {
+  font-size: 12px;
+}
+.text-base {
+  font-size: 14px;
+}
+.text-lg {
+  font-size: 16px;
+}
+.text-xl {
+  font-size: 18px;
+}
+.text-2xl {
+  font-size: 20px;
+}
+.text-3xl {
+  font-size: 24px;
+}
+.text-4xl {
+  font-size: 28px;
+}
+.text-5xl {
+  font-size: 32px;
+}
+.text-6xl {
+  font-size: 36px;
+}
+.text-7xl {
+  font-size: 44px;
+}
+.text-8xl {
+  font-size: 52px;
+}
+.text-9xl {
+  font-size: 64px;
+}
+.text-10xl {
+  font-size: 72px;
 }
 
 .rounded-none {
