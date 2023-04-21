@@ -11,21 +11,91 @@
   box-shadow: 0px -1px 20px rgba(0, 110, 233, 0.1);
 }
 
-.header {
-  width: 100%;
-  padding: 20px 27px 14px;
-}
-
-.header > div > i {
-  padding-left: 30px;
-}
-
 .primary {
   color: #006ee9;
 }
 
+.card-container {
+  box-shadow: 6px 4px 11px -5px rgba(157, 157, 157, 0.62);
+  -webkit-box-shadow: 6px 4px 11px -5px rgba(157, 157, 157, 0.62);
+  -moz-box-shadow: 6px 4px 11px -5px rgba(157, 157, 157, 0.62);
+}
+
+.card-text {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+
+  @supports (-webkit-line-clamp: 2) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: initial;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+}
+
 .inline-block {
   display: inline-block;
+}
+
+.grid {
+  display: grid;
+}
+
+/* Grid Template Columns and Rows */
+.grid-template-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+.grid-template-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.grid-template-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.grid-template-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.grid-template-cols-5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.grid-template-cols-6 {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+.grid-template-cols-7 {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+.grid-template-cols-8 {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+.grid-template-cols-none {
+  grid-template-columns: none;
+}
+
+.grid-template-rows-1 {
+  grid-template-rows: repeat(1, minmax(0, 1fr));
+}
+.grid-template-rows-2 {
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+.grid-template-rows-3 {
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+.grid-template-rows-4 {
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+}
+.grid-template-rows-5 {
+  grid-template-rows: repeat(5, minmax(0, 1fr));
+}
+.grid-template-rows-6 {
+  grid-template-rows: repeat(6, minmax(0, 1fr));
+}
+.grid-template-rows-9 {
+  grid-template-rows: repeat(9, minmax(0, 1fr));
+}
+.grid-template-rows-none {
+  grid-template-rows: none;
 }
 
 /* Flex container */
@@ -59,6 +129,10 @@
 }
 .flex-no-wrap {
   flex-wrap: nowrap;
+}
+
+.justify-items-center {
+  justify-items: center;
 }
 
 /* Flex items alignment */
@@ -116,6 +190,14 @@
 }
 .justify-evenly {
   justify-content: space-evenly;
+}
+
+.justify-self-center {
+  justify-self: center;
+}
+
+.align-self-center {
+  align-self: center;
 }
 
 /* Flex items sizing */
