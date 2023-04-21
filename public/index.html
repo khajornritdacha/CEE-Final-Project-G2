@@ -23,8 +23,12 @@
   <body>
     <div id="app">
       <div
-        class="grid grid-template-cols-1"
-        style="grid-template-rows: repeat(3, max-content)"
+        class="grid justify-center"
+        style="
+          grid-template-rows: repeat(3, max-content);
+          grid-template-columns: 90%;
+          margin-bottom: 30px;
+        "
       >
         <section
           class="flex justify-between items-center"
@@ -41,7 +45,7 @@
         </section>
         <section>
           <form action="" class="flex justify-between" style="padding: 20px 0">
-            <select name="course_no" id="coursesSelect" style="width: 80%">
+            <select name="course_no" id="coursesSelect" style="width: 100%">
               <option value="" selected>Any Courses</option>
               <option value="2110101">Com Prog</option>
               <option value="2110201">Com Eng Ess</option>
@@ -50,7 +54,7 @@
             <button
               type="submit"
               class="rounded-md primary"
-              style="width: 40px"
+              style="width: clamp(60px, 20%, 100px); margin-left: 30px"
             >
               Go
             </button>
@@ -62,7 +66,7 @@
         >
           <div
             class="grid grid-template-cols-4 grid-template-rows-9 rounded-lg card-container"
-            style="width: 100%; height: 125px; padding: 10px 0"
+            style="width: 100%; height: 125px; padding: 10px"
           >
             <h3
               style="
