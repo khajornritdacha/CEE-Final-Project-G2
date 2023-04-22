@@ -1,3 +1,26 @@
+// ts-check
+
+// Define Types
+/**
+ * @typedef  {Object} Course
+ * @property {string} course_no
+ * @property {string} cv_cid
+ * @property {string} title
+ * @property {string} semester
+ * @property {string} year
+ * @property {string} course_icon
+ */
+
+/**
+ * @typedef  {Object} Item
+ * @property {string} item_id
+ * @property {string} title
+ * @property {boolean} is_finished
+ * @property {string} out_time
+ * @property {string} due_time
+ * @property {Course} course
+ */
+
 const BACKEND_URL = 'http://localhost:3000';
 
 // LoginPage();
@@ -20,6 +43,8 @@ const getUserProfile = async () => {
     method: 'GET',
     credentials: 'include',
   };
+
+  // @ts-ignore (Dont remove this line)
   await fetch(`${BACKEND_URL}/courseville/get_profile_info`, options)
     .then((response) => response.json())
     .then((data) => {
@@ -38,32 +63,74 @@ const logout = async () => {
   window.location.href = `${BACKEND_URL}/courseville/logout`;
 };
 
+/**
+ * @param {string} html representing a single element
+ * @return {ChildNode}
+ */
+function htmlToElement(html) {
+  const template = document.createElement('template');
+  html = html.trim();
+  template.innerHTML = html;
+  return template.content.firstChild;
+}
+
 function DashBoardPage() {
-  // 0. fetch data
-  // 1. add heading
-  // 2. add body
-  // 3. add nav bar
-  const tmp = document.createElement('div');
-  tmp.classList.add('grid');
-  tmp.classList.add('justify-center');
+  const pageContainer = htmlToElement(`
+    <div
+    class="grid justify-center"
+    style="
+    grid-template-rows: repeat(3, max-content);
+    grid-template-columns: 90%;
+    margin-bottom: 30px;
+    "></div>`);
 
-  tmp.id = 'dashboard-container';
+  const items = [
+    {
+      due_time: '1682096340',
+      item_id: '849315',
+      course: {
+        cv_cid: '31887',
+        semester: '2',
+        course_icon:
+          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
+        course_no: '2304184',
+        title: 'General Physics Laboratory II  [Section 1-12]',
+        year: '2022',
+      },
+      student_id: '6532155621',
+      out_time: '1675040402',
+      is_finished: false,
+      title: 'PRETEST: การทดลองที่ 35 การเหนี่ยวนำแม่เหล็กไฟฟ้า ',
+    },
+    {
+      due_time: '1682096340',
+      item_id: '849211',
+      course: {
+        cv_cid: '31887',
+        semester: '2',
+        course_icon:
+          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
+        course_no: '2304184',
+        title: 'General Physics Laboratory II  [Section 1-12]',
+        year: '2022',
+      },
+      student_id: '6532155621',
+      out_time: '1675062331',
+      is_finished: false,
+      title: 'PRETEST: การทดลองที่ 17 เลนส์และกระจกโค้ง',
+    },
+  ];
 
-  tmp.style.gridTemplateRows = 'repeat(3, max-content)';
-  tmp.style.gridTemplateColumns = '90%';
-  tmp.style.marginBottom = '30px';
+  pageContainer.appendChild(Heading());
+  pageContainer.appendChild(SearchBar());
+  pageContainer.appendChild(CardList(items));
+  pageContainer.appendChild(NavBar());
 
-  tmp.appendChild(Heading());
-  tmp.appendChild(SearchBar());
-  tmp.appendChild(CardContainer());
-  tmp.appendChild(NavBar());
-
-  app.appendChild(tmp);
+  app.appendChild(pageContainer);
 }
 
 function Heading() {
-  const heading = document.createElement('div');
-  heading.innerHTML = `
+  const heading = htmlToElement(`
       <section
             class="flex justify-between items-center"
             style="width: 100%; padding: 20px 0 14px"
@@ -77,14 +144,12 @@ function Heading() {
               ></i>
             </div>
           </section>
-      `;
-  console.log(heading.children[0]);
+      `);
   return heading;
 }
 
 function SearchBar() {
-  const searchBar = document.createElement('section');
-  searchBar.innerHTML = `
+  const searchBar = htmlToElement(`
       <form action="" class="flex justify-between" style="padding: 20px 0">
         <select name="course_no" id="coursesSelect" style="width: 100%">
           <option value="" selected>Any Courses</option>
@@ -100,13 +165,40 @@ function SearchBar() {
           Go
         </button>
       </form>
-    `;
+    `);
   return searchBar;
 }
 
-function SingleCard() {
-  const tmp = document.createElement('div');
-  tmp.innerHTML = `
+/**
+ * Get assigned time in unix and return readable time
+ * @param {string} time
+ * @return {string}
+ */
+function parseOutTime(time) {
+  return time;
+}
+
+/**
+ * Parse unix time to readable time and check if it is danger(is due in 24 hours)
+ * @param {string} time
+ * @return {{isDanger: boolean, leftTime: string, date: string}}
+ */
+// TODO: implement this function
+function parseDueTime(time) {
+  return {
+    isDanger: true,
+    leftTime: time,
+    date: 'Mar, 12',
+  };
+}
+
+/**
+ * @param {Item} item
+ * @returns {ChildNode}
+ */
+function SingleCard(item) {
+  const remainingTime = parseDueTime(item.due_time);
+  const singleCard = htmlToElement(`
       <div
             class="grid grid-template-cols-4 grid-template-rows-9 rounded-lg card-container"
             style="width: 100%; height: 125px; padding: 10px"
@@ -119,7 +211,7 @@ function SingleCard() {
               "
               class="text-lg card-text"
             >
-              Final Project: Preparation (Set up an EC2 instance)
+              ${item.title}
             </h3>
             <div
               class="text-sm rounded-lg"
@@ -133,7 +225,7 @@ function SingleCard() {
                 align-self: start;
               "
             >
-              1 hour
+             ${remainingTime.leftTime} 
             </div>
             <p
               class="text-sm"
@@ -144,7 +236,7 @@ function SingleCard() {
                 align-self: start;
               "
             >
-              Com Eng Ess
+              ${item.course.title}
             </p>
             <p
               class="text-xs primary"
@@ -154,57 +246,62 @@ function SingleCard() {
                 justify-self: start;
               "
             >
-              Mar, 12
+              ${remainingTime.date}
             </p>
-            <div
-              class="text-sm rounded-lg"
-              style="
-                grid-column: 4 / span 1;
-                grid-row: 7 / span 3;
-                background-color: #006ee9;
-                padding: 5px 7.5px;
-                color: white;
-                justify-self: end;
-                align-self: center;
-              "
-            >
-              Done
-            </div>
           </div>
-      `;
-  return tmp;
+      `);
+
+  const doneBtn = htmlToElement(`
+    <div
+    class="text-sm rounded-lg"
+    style="
+      grid-column: 4 / span 1;
+      grid-row: 7 / span 3;
+      background-color: #006ee9;
+      padding: 5px 7.5px;
+      color: white;
+      justify-self: end;
+      align-self: center;
+      cursor: pointer;
+    "
+  >
+    Done
+  </div>`);
+  doneBtn.addEventListener('click', () => {
+    console.log(item.item_id);
+  });
+  singleCard.appendChild(doneBtn);
+  return singleCard;
 }
 
-function CardContainer() {
-  const tmp = document.createElement('div');
-  tmp.innerHTML = `
+/**
+ *
+ * @param {Item[]} items
+ * @returns {ChildNode}
+ */
+function CardList(items) {
+  const cardList = htmlToElement(`
       <section
             class="grid grid-template-cols-1 justify-items-center"
-            style="row-gap: 20px; visibility: hidden"
+            style="row-gap: 20px;"
             id="card-container"
           >
       </section>
-      `;
-  app.appendChild(tmp);
-  const cardContainer = document.getElementById('card-container');
-
-  //   1. remove card container from .div and insert it to upper level
-  // 2. add cards to card container
-
-  cardContainer.appendChild(SingleCard());
-
-  return tmp;
+      `);
+  for (const item of items) {
+    cardList.appendChild(SingleCard(item));
+  }
+  return cardList;
 }
 
 function NavBar() {
-  const navBar = document.createElement('div');
-  navBar.innerHTML = `
+  const navBar = htmlToElement(`
       <nav class="flex items-center justify-around primary fixed bot-0 navbar">
           <i class="fa-solid fa-house fa-2xl"></i>
           <i class="fa-solid fa-question fa-2xl"></i>
           <i class="fa-solid fa-check fa-2xl"></i>
       </nav>
-      `;
+      `);
   return navBar;
 }
 
