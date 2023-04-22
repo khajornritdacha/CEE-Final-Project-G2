@@ -41,11 +41,14 @@ main();
 
 async function main() {
   // Fetch Courses from backend
-  // const res = await fetchCourses();
-  // if (!res) return;
+  console.log('Fetching course');
+  const res = await fetchCourses();
+  if (!res) return;
+  console.log('Fetch course successfully');
+  console.log(res);
   // Render Page
-  // RoutePage(0);
-  LoginPage();
+  RoutePage(0);
+  // LoginPage();
 }
 
 async function logout() {
@@ -489,82 +492,15 @@ async function RoutePage(pageNo, course_no) {
   GLOBAL_PAGE = pageNo;
   app.innerHTML = '';
 
-  const items = [
-    {
-      due_time: '1682096340',
-      item_id: '849315',
-      course: {
-        cv_cid: '31887',
-        semester: '2',
-        course_icon:
-          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
-        course_no: '2304184',
-        title: 'General Physics Laboratory II  [Section 1-12]',
-        year: '2022',
-      },
-      student_id: '6532155621',
-      out_time: '1675040402',
-      is_finished: false,
-      title: 'PRETEST: การทดลองที่ 35 การเหนี่ยวนำแม่เหล็กไฟฟ้า ',
-    },
-    {
-      due_time: '1682096340',
-      item_id: '849211',
-      course: {
-        cv_cid: '31887',
-        semester: '2',
-        course_icon:
-          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
-        course_no: '2304184',
-        title: 'General Physics Laboratory II  [Section 1-12]',
-        year: '2022',
-      },
-      student_id: '6532155621',
-      out_time: '1675062331',
-      is_finished: false,
-      title: 'PRETEST: การทดลองที่ 17 เลนส์และกระจกโค้ง',
-    },
-    {
-      due_time: '1683133140',
-      item_id: '923116',
-      course: {
-        cv_cid: '33808',
-        semester: '2',
-        course_icon:
-          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
-        course_no: '2302127',
-        title: 'General Chemistry  [Section 1-2]',
-        year: '2022',
-      },
-      student_id: '6532155621',
-      out_time: '1681115461',
-      is_finished: false,
-      title: 'แบบฝึกหัดที่ 6-1 หลังกลางภาค: กรด-เบส ชุดที่ 1',
-    },
-    {
-      due_time: '1683133140',
-      item_id: '923106',
-      course: {
-        cv_cid: '33808',
-        semester: '2',
-        course_icon:
-          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
-        course_no: '2302127',
-        title: 'General Chemistry  [Section 1-2]',
-        year: '2022',
-      },
-      student_id: '6532155621',
-      out_time: '1681115559',
-      is_finished: false,
-      title: 'แบบฝึกหัดที่ 7 หลังกลางภาค: เคมีนิวเคลียร์',
-    },
-  ];
+  console.log('Getting items');
 
-  // let items;
-  // if (!items) return;
-  // if (pageNo === 0) items = await getAssignedItems(course_no);
-  // else if (pageNo === 1) items = await getMissedItems(course_no);
-  // else if (pageNo === 2) items = await getDoneItems(course_no);
+  let items;
+  if (pageNo === 0) items = await getAssignedItems(course_no);
+  else if (pageNo === 1) items = await getMissedItems(course_no);
+  else if (pageNo === 2) items = await getDoneItems(course_no);
+
+  console.log('Items:');
+  console.log(items);
 
   if (pageNo === 0) {
     DashBoardPage(0, items);
@@ -606,24 +542,30 @@ function authorizeApplication() {
 function LoginPage() {
   app.innerHTML = '';
   app.innerHTML = `
-    <div class="login-page-container">
-      <div class="login-container">
-        <div class="title">
-          <h1>My Course Woo</h1>
-          <h2>Assignments Management App</h2>
-          <div class="logo">
-            <img src="./assets/loginPagePic.svg" alt="Login Page Logo">
-          </div>
-        </div>
-        <div class="blue-con">
-          <h1>Welcome</h1>
-          <p>Please login with<br>MyCourseVille to continue</p>
-          <a href="#" id="loginBtn">Login with MyCourseVille</a>
-        </div>
-      </div>
+  <main class="login-page-container">
+  <div class="login-left">
+    <div class="login-heading">
+      <h1>My Course Woo</h1>
+      <h3>Assignment Management App</h3>
     </div>
+    <div class="login-logo-container">
+      <div class="login-logo"></div>
+    </div>
+  </div>
+  <div class="login-right">
+    <div class="login-btn" id="login-btn">
+      <span>Login with MyCourseVille</span>
+    </div>
+  </div>
+</main>
   `;
-  document
-    .getElementById('loginBtn')
-    .addEventListener('click', authorizeApplication);
+  const loginBtn = document.getElementById('login-btn');
+
+  loginBtn.addEventListener('click', () => {
+    loginBtn.setAttribute('disabled', 'true');
+    loginBtn.style.backgroundColor = '#8799ad';
+    loginBtn.style.cursor = 'initial';
+    loginBtn.onclick = null;
+    authorizeApplication();
+  });
 }

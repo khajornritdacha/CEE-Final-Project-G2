@@ -76,6 +76,7 @@
 }
 
 .login-btn:active {
+  background: #8799ad;
   transform: scale(0.96);
 }
 
