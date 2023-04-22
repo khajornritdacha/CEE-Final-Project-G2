@@ -56,7 +56,6 @@ const fetchCourses = async (access_token, options) => {
       semester: String(course.semester),
       cv_cid: String(course.cv_cid),
     }));
-    console.log(courses);
     if (!year || !semester)
       throw new Error('Year or semester is not provided.');
     const filteredCourses = courses.filter(
@@ -108,7 +107,7 @@ const getCoursesAssignments = async (access_token, courses) => {
   }
 };
 
-const readAssignmentsDb = async (options) => {
+const readAssignmentsDb = async (options, student_id) => {
   const params = {
     TableName: process.env.aws_assignments_table_name,
   };
@@ -126,6 +125,7 @@ const readAssignmentsDb = async (options) => {
         (item) => item.course.course_no === options.course_no
       );
     }
+    Items = Items.filter((item) => item.student_id === student_id);
     return Items;
   } catch (err) {
     console.error(err);
@@ -133,7 +133,7 @@ const readAssignmentsDb = async (options) => {
   }
 };
 
-const syncAllCoursesAssignments = async (access_token, options) => {
+const syncAllCoursesAssignments = async (access_token, options, student_id) => {
   try {
     const dbItems = await readAssignmentsDb(options);
     const dbItemsId = dbItems.map((item) => item.item_id);
@@ -146,7 +146,7 @@ const syncAllCoursesAssignments = async (access_token, options) => {
           PutRequest: {
             Item: {
               item_id: { S: String(item.itemid) },
-              student_id: { S: '6532155621' },
+              student_id: { S: student_id },
               is_finished: { BOOL: false },
               title: { S: item.title },
               out_time: { S: String(item.changed) },
@@ -172,10 +172,10 @@ const syncAllCoursesAssignments = async (access_token, options) => {
   }
 };
 
-const getRawAssignments = async (access_token, options) => {
+const getRawAssignments = async (access_token, options, student_id) => {
   try {
-    await syncAllCoursesAssignments(access_token, options);
-    const data = await readAssignmentsDb(options);
+    await syncAllCoursesAssignments(access_token, options, student_id);
+    const data = await readAssignmentsDb(options, student_id);
     return data;
   } catch (err) {
     console.log(err);
@@ -205,13 +205,19 @@ exports.getDoneAssignments = async (req, res) => {
   try {
     if (!req.session.token)
       res.status(400).json({ message: 'Token not found' });
+    if (!req.session.profile.student.id)
+      res.status(400).json({ message: 'Invalid Student Id' });
     const currentTime = Math.floor(Date.now() / 1000);
     const data = (
-      await getRawAssignments(req.session.token.access_token, {
-        year,
-        semester,
-        course_no,
-      })
+      await getRawAssignments(
+        req.session.token.access_token,
+        {
+          year,
+          semester,
+          course_no,
+        },
+        req.session.profile.student.id
+      )
     ).filter((item) => {
       return item.is_finished && currentTime >= Number(item.due_time);
     });
@@ -237,13 +243,19 @@ exports.getMissedAssignments = async (req, res) => {
   try {
     if (!req.session.token)
       res.status(400).json({ message: 'Token not found' });
+    if (!req.session.profile.student.id)
+      res.status(400).json({ message: 'Invalid Student Id' });
     const currentTime = Math.floor(Date.now() / 1000);
     const data = (
-      await getRawAssignments(req.session.token.access_token, {
-        year,
-        semester,
-        course_no,
-      })
+      await getRawAssignments(
+        req.session.token.access_token,
+        {
+          year,
+          semester,
+          course_no,
+        },
+        req.session.profile.student.id
+      )
     ).filter((item) => {
       return !item.is_finished && currentTime >= Number(item.due_time);
     });
@@ -269,13 +281,20 @@ exports.getAssignedAssignments = async (req, res) => {
   try {
     if (!req.session.token.access_token)
       res.status(400).json({ message: 'Token not found' });
+    if (!req.session.profile.student.id)
+      res.status(400).json({ message: 'Invalid Student Id' });
+
     const currentTime = Math.floor(Date.now() / 1000);
     const data = (
-      await getRawAssignments(req.session.token.access_token, {
-        year,
-        semester,
-        course_no,
-      })
+      await getRawAssignments(
+        req.session.token.access_token,
+        {
+          year,
+          semester,
+          course_no,
+        },
+        req.session.profile.student.id
+      )
     ).filter((item) => {
       return !item.is_finished && currentTime < Number(item.due_time);
     });
@@ -302,7 +321,6 @@ exports.addAssignment = async (req, res) => {
   };
   try {
     const response = await docClient.send(new PutCommand(putParams));
-    console.log(response);
     res.send('Add item successfully');
   } catch (err) {
     console.error(err);

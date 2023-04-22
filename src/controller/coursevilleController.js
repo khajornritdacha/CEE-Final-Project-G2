@@ -3,6 +3,7 @@ dotenv.config();
 const https = require('https');
 const url = require('url');
 const querystring = require('querystring');
+const axios = require('axios');
 
 const redirect_uri = `http://${process.env.backendIPAddress}/courseville/access_token`;
 const authorization_url = `https://www.mycourseville.com/api/oauth/authorize?response_type=code&client_id=${process.env.client_id}&redirect_uri=${redirect_uri}`;
@@ -12,7 +13,7 @@ exports.authApp = (req, res) => {
   res.redirect(authorization_url);
 };
 
-exports.accessToken = (req, res) => {
+exports.accessToken = async (req, res) => {
   const parsedUrl = url.parse(req.url);
   const parsedQuery = querystring.parse(parsedUrl.query);
 
@@ -32,39 +33,46 @@ exports.accessToken = (req, res) => {
     });
 
     const tokenOptions = {
-      method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Content-Length': postData.length,
       },
     };
 
-    const tokenReq = https.request(
-      access_token_url,
-      tokenOptions,
-      (tokenRes) => {
-        let tokenData = '';
-        tokenRes.on('data', (chunk) => {
-          tokenData += chunk;
-        });
-        tokenRes.on('end', () => {
-          const token = JSON.parse(tokenData);
-          req.session.token = token;
-          // console.log(req.session);
-          if (token) {
-            res.writeHead(302, {
-              Location: `http://${process.env.frontendIPAddress}`,
-            });
-            res.end();
-          }
-        });
-      }
-    );
-    tokenReq.on('error', (err) => {
-      console.error(err);
-    });
-    tokenReq.write(postData);
-    tokenReq.end();
+    try {
+      const tokenRes = await axios.post(
+        access_token_url,
+        postData,
+        tokenOptions
+      );
+      const token = tokenRes.data;
+
+      if (!token)
+        return tokenRes
+          .status(400)
+          .json({ message: 'Error in authenticating' });
+
+      req.session.token = token;
+
+      const profileRes = await axios.get(
+        'https://www.mycourseville.com/api/v1/public/get/user/info',
+        {
+          headers: {
+            Authorization: `Bearer ${req.session.token.access_token}`,
+          },
+        }
+      );
+      const profile = profileRes.data.data;
+      console.log(profile);
+      req.session.profile = profile;
+
+      console.log(req.session);
+
+      return res.redirect(302, `http://${process.env.frontendIPAddress}`);
+    } catch (err) {
+      console.log(err);
+      return res.sendStatus(400);
+    }
   } else {
     res.writeHead(302, { Location: authorization_url });
     res.end();
