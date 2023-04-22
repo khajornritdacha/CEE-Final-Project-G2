@@ -107,7 +107,10 @@ const getCoursesAssignments = async (access_token, courses) => {
   }
 };
 
-const readAssignmentsDb = async (options, student_id) => {
+const readAssignmentsDb = async (options, session) => {
+  console.log(session.profile);
+  console.log(session.profile.student);
+  console.log(session.profile.student.id);
   const params = {
     TableName: process.env.aws_assignments_table_name,
   };
@@ -125,7 +128,9 @@ const readAssignmentsDb = async (options, student_id) => {
         (item) => item.course.course_no === options.course_no
       );
     }
-    Items = Items.filter((item) => item.student_id === student_id);
+    Items = Items.filter(
+      (item) => item.student_id === session.profile.student.id
+    );
     return Items;
   } catch (err) {
     console.error(err);
@@ -133,8 +138,27 @@ const readAssignmentsDb = async (options, student_id) => {
   }
 };
 
-const syncAllCoursesAssignments = async (access_token, options, student_id) => {
+/**
+ *
+ * @param {*} session
+ * @return {Promise<boolean>}
+ */
+const canSkipSync = (session) => {
+  const currentTime = Date.now() / 1000;
+  console.log('Check can skip sync');
+  if (
+    session?.profile?.lastSyncTime &&
+    currentTime - session.profile.lastSyncTime < 60 * 15
+  ) {
+    console.log('Can skip sync');
+    return true;
+  }
+  return false;
+};
+
+const syncAllCoursesAssignments = async (access_token, options, session) => {
   try {
+    if (canSkipSync()) return;
     const dbItems = await readAssignmentsDb(options);
     const dbItemsId = dbItems.map((item) => item.item_id);
     const courses = await fetchCourses(access_token, options);
@@ -146,7 +170,7 @@ const syncAllCoursesAssignments = async (access_token, options, student_id) => {
           PutRequest: {
             Item: {
               item_id: { S: String(item.itemid) },
-              student_id: { S: student_id },
+              student_id: { S: session.profile.student.id },
               is_finished: { BOOL: false },
               title: { S: item.title },
               out_time: { S: String(item.changed) },
@@ -167,15 +191,17 @@ const syncAllCoursesAssignments = async (access_token, options, student_id) => {
       }
     }
     await writeAssignments(updateItemRequest);
+    session.profile.lastSyncTime = Date.now() / 1000;
+    console.log(`Synced ${updateItemRequest.length} assignments`);
   } catch (err) {
     console.log(err);
   }
 };
 
-const getRawAssignments = async (access_token, options, student_id) => {
+const getRawAssignments = async (access_token, options, session) => {
   try {
-    await syncAllCoursesAssignments(access_token, options, student_id);
-    const data = await readAssignmentsDb(options, student_id);
+    await syncAllCoursesAssignments(access_token, options, session);
+    const data = await readAssignmentsDb(options, session);
     return data;
   } catch (err) {
     console.log(err);
@@ -204,9 +230,9 @@ exports.getDoneAssignments = async (req, res) => {
       .json({ message: 'Year or semester is not provided.' });
   try {
     if (!req.session.token)
-      res.status(400).json({ message: 'Token not found' });
+      return res.status(400).json({ message: 'Token not found' });
     if (!req.session.profile.student.id)
-      res.status(400).json({ message: 'Invalid Student Id' });
+      return res.status(400).json({ message: 'Invalid Student Id' });
     const currentTime = Math.floor(Date.now() / 1000);
     const data = (
       await getRawAssignments(
@@ -216,7 +242,7 @@ exports.getDoneAssignments = async (req, res) => {
           semester,
           course_no,
         },
-        req.session.profile.student.id
+        req.session
       )
     ).filter((item) => {
       return item.is_finished && currentTime >= Number(item.due_time);
@@ -242,9 +268,9 @@ exports.getMissedAssignments = async (req, res) => {
       .json({ message: 'Year or semester is not provided.' });
   try {
     if (!req.session.token)
-      res.status(400).json({ message: 'Token not found' });
+      return res.status(400).json({ message: 'Token not found' });
     if (!req.session.profile.student.id)
-      res.status(400).json({ message: 'Invalid Student Id' });
+      return res.status(400).json({ message: 'Invalid Student Id' });
     const currentTime = Math.floor(Date.now() / 1000);
     const data = (
       await getRawAssignments(
@@ -254,7 +280,7 @@ exports.getMissedAssignments = async (req, res) => {
           semester,
           course_no,
         },
-        req.session.profile.student.id
+        req.session
       )
     ).filter((item) => {
       return !item.is_finished && currentTime >= Number(item.due_time);
@@ -273,6 +299,8 @@ exports.getMissedAssignments = async (req, res) => {
 };
 
 exports.getAssignedAssignments = async (req, res) => {
+  console.log('Current Session');
+  console.log(req?.session);
   const { year, semester, course_no } = req.query;
   if (!year || !semester)
     return res
@@ -280,9 +308,9 @@ exports.getAssignedAssignments = async (req, res) => {
       .json({ message: 'Year or semester is not provided.' });
   try {
     if (!req.session.token.access_token)
-      res.status(400).json({ message: 'Token not found' });
+      return res.status(400).json({ message: 'Token not found' });
     if (!req.session.profile.student.id)
-      res.status(400).json({ message: 'Invalid Student Id' });
+      return res.status(400).json({ message: 'Invalid Student Id' });
 
     const currentTime = Math.floor(Date.now() / 1000);
     const data = (
@@ -293,7 +321,7 @@ exports.getAssignedAssignments = async (req, res) => {
           semester,
           course_no,
         },
-        req.session.profile.student.id
+        req.session
       )
     ).filter((item) => {
       return !item.is_finished && currentTime < Number(item.due_time);
