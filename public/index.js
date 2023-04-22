@@ -44,7 +44,8 @@ async function main() {
   // const res = await fetchCourses();
   // if (!res) return;
   // Render Page
-  RoutePage(0);
+  // RoutePage(0);
+  LoginPage();
 }
 
 async function logout() {
@@ -603,32 +604,26 @@ function authorizeApplication() {
 }
 
 function LoginPage() {
-  console.log('Render login page');
   app.innerHTML = '';
   app.innerHTML = `
-    <section>
-        <header>
-            <h1 id="app-name">MyCourseville API Login Page Group <span id="group-id"></span></h1>
-        </header>
-    </section>
-    <section>
-        <header>
-            <h2 class="section-title description">Please press the login button to proceed to MyCourseville API Home Page</h2>
-            <p class="section-subtitle description">(You need to login with MyCourseville Platform account.)</p>
-        </header>
-    </section>
-    <section class="section-center">
-        <button class="button login-button rounded-full" id="loginBtn">Login</button>
-    </section>
-    <section class="section-center">
-        <button class="button change-page-button" onclick="window.location.href='index.html'">Go to รายการฝากซื้อ</button>
-    </section>
-    <section class="section-credit">
-        &#169; 2110221 Computer Engineering Essentials (2022/2) &#169;
-    </section>
+    <div class="login-page-container">
+      <div class="login-container">
+        <div class="title">
+          <h1>My Course Woo</h1>
+          <h2>Assignments Management App</h2>
+          <div class="logo">
+            <img src="./assets/loginPagePic.svg" alt="Login Page Logo">
+          </div>
+        </div>
+        <div class="blue-con">
+          <h1>Welcome</h1>
+          <p>Please login with<br>MyCourseVille to continue</p>
+          <a href="#" id="loginBtn">Login with MyCourseVille</a>
+        </div>
+      </div>
+    </div>
   `;
   document
     .getElementById('loginBtn')
     .addEventListener('click', authorizeApplication);
-  return;
 }
