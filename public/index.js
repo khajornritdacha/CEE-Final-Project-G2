@@ -21,6 +21,15 @@
  * @property {Course} course
  */
 
+/**
+ * @enum {number}
+ */
+const ItemStatus = {
+  SAFE: 0,
+  DANGER: 1,
+  MISSED: 2,
+};
+
 const BACKEND_URL = 'http://localhost:3000';
 
 // LoginPage();
@@ -81,7 +90,7 @@ function DashBoardPage() {
     style="
     grid-template-rows: repeat(3, max-content);
     grid-template-columns: 90%;
-    margin-bottom: 30px;
+    margin-bottom: 100px;
     "></div>`);
 
   const items = [
@@ -118,6 +127,40 @@ function DashBoardPage() {
       out_time: '1675062331',
       is_finished: false,
       title: 'PRETEST: การทดลองที่ 17 เลนส์และกระจกโค้ง',
+    },
+    {
+      due_time: '1683133140',
+      item_id: '923116',
+      course: {
+        cv_cid: '33808',
+        semester: '2',
+        course_icon:
+          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
+        course_no: '2302127',
+        title: 'General Chemistry  [Section 1-2]',
+        year: '2022',
+      },
+      student_id: '6532155621',
+      out_time: '1681115461',
+      is_finished: false,
+      title: 'แบบฝึกหัดที่ 6-1 หลังกลางภาค: กรด-เบส ชุดที่ 1',
+    },
+    {
+      due_time: '1683133140',
+      item_id: '923106',
+      course: {
+        cv_cid: '33808',
+        semester: '2',
+        course_icon:
+          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
+        course_no: '2302127',
+        title: 'General Chemistry  [Section 1-2]',
+        year: '2022',
+      },
+      student_id: '6532155621',
+      out_time: '1681115559',
+      is_finished: false,
+      title: 'แบบฝึกหัดที่ 7 หลังกลางภาค: เคมีนิวเคลียร์',
     },
   ];
 
@@ -179,16 +222,60 @@ function parseOutTime(time) {
 }
 
 /**
+ *
+ * @param {string} unixDueTime
+ * @returns {string}
+ */
+function formatRemainingTime(unixDueTime) {
+  const now = new Date().getTime() / 1000;
+  const diff = Number(unixDueTime) - now;
+
+  if (diff > 365 * 24 * 3600) {
+    const years = Math.floor(diff / (365 * 24 * 3600));
+    return `${years} year${years > 1 ? 's' : ''}`;
+  } else if (diff > 30 * 24 * 3600) {
+    const months = Math.floor(diff / (30 * 24 * 3600));
+    return `${months} month${months > 1 ? 's' : ''}`;
+  } else if (diff > 24 * 3600) {
+    const days = Math.floor(diff / (24 * 3600));
+    return `${days} day${days > 1 ? 's' : ''}`;
+  } else if (diff > 3600) {
+    const hours = Math.floor(diff / 3600);
+    return `${hours} hour${hours > 1 ? 's' : ''}`;
+  } else if (diff > 60) {
+    const minutes = Math.floor(diff / 60);
+    return `${minutes} minute${minutes > 1 ? 's' : ''}`;
+  } else if (diff > 0) {
+    return '< 1 minute';
+  } else {
+    return 'missed';
+  }
+}
+
+/**
  * Parse unix time to readable time and check if it is danger(is due in 24 hours)
  * @param {string} time
- * @return {{isDanger: boolean, leftTime: string, date: string}}
+ * @return {{status: ItemStatus, leftTime: string, date: string}}
  */
 // TODO: implement this function
 function parseDueTime(time) {
+  const d = new Date(Number(time) * 1000);
+  const currentTime = new Date().getTime() / 1000;
+  const diffTime = Number(time) - currentTime;
+  const date = d
+    .toLocaleTimeString([], { day: 'numeric', month: 'short' })
+    .split(',')[0];
+  const leftTime = formatRemainingTime(time);
+  const status =
+    diffTime < 0
+      ? ItemStatus.MISSED
+      : diffTime < 24 * 3600
+      ? ItemStatus.DANGER
+      : ItemStatus.SAFE;
   return {
-    isDanger: true,
-    leftTime: time,
-    date: 'Mar, 12',
+    status,
+    leftTime,
+    date,
   };
 }
 
@@ -201,18 +288,15 @@ function SingleCard(item) {
   const singleCard = htmlToElement(`
       <div
             class="grid grid-template-cols-4 grid-template-rows-9 rounded-lg card-container"
-            style="width: 100%; height: 125px; padding: 10px"
+            style="width: 100%; height: 125px; padding: 10px;"
           >
-            <h3
-              style="
-                grid-column: 1 / span 3;
-                grid-row: 1 / span 4;
-                justify-self: start;
-              "
-              class="text-lg card-text"
+            <a
+              class="card-title"
+              href="https://www.mycourseville.com/?q=courseville/worksheet/${item.course.cv_cid}/${item.item_id}"
+              target="_blank"
             >
               ${item.title}
-            </h3>
+            </a>
             <div
               class="text-sm rounded-lg"
               style="
@@ -296,7 +380,7 @@ function CardList(items) {
 
 function NavBar() {
   const navBar = htmlToElement(`
-      <nav class="flex items-center justify-around primary fixed bot-0 navbar">
+      <nav class="flex items-center justify-around fixed bot-0 navbar">
           <i class="fa-solid fa-house fa-2xl"></i>
           <i class="fa-solid fa-question fa-2xl"></i>
           <i class="fa-solid fa-check fa-2xl"></i>
