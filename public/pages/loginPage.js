@@ -1,3 +1,5 @@
+import { logout } from '../Utility/utility.js';
+
 const backendIPAddress = 'localhost:3000';
 
 function authorizeApplication() {
@@ -21,6 +23,7 @@ export default function LoginPage() {
           <h1>Welcome</h1>
           <p>Please login with<br>MyCourseVille to continue</p>
           <a href="#" id="loginBtn">Login with MyCourseVille</a>
+          <a href="#" id="logoutBtn">Logout</a>
         </div>
       </div>
     </header>
@@ -28,5 +31,6 @@ export default function LoginPage() {
   document
     .getElementById('loginBtn')
     .addEventListener('click', authorizeApplication);
+  document.getElementById('logoutBtn').addEventListener('click', logout);
   return;
 }

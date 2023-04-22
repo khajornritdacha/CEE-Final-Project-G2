@@ -1,4 +1,4 @@
-import { BACKEND_URL } from './constant';
+import { BACKEND_URL } from './constant.js';
 
 export const getUserProfile = async () => {
   const options = {
