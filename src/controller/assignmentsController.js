@@ -186,6 +186,8 @@ const getRawAssignments = async (access_token, options) => {
 // TODO: test this route
 exports.getCourses = async (req, res) => {
   try {
+    if (!req.session.token.access_token)
+      res.status(400).json({ message: 'Token not found' });
     const data = await fetchCourses(req.session.token.access_token, req.query);
     return res.json(data);
   } catch (err) {
@@ -201,6 +203,8 @@ exports.getDoneAssignments = async (req, res) => {
       .status(400)
       .json({ message: 'Year or semester is not provided.' });
   try {
+    if (!req.session.token)
+      res.status(400).json({ message: 'Token not found' });
     const currentTime = Math.floor(Date.now() / 1000);
     const data = (
       await getRawAssignments(req.session.token.access_token, {
@@ -231,6 +235,8 @@ exports.getMissedAssignments = async (req, res) => {
       .status(400)
       .json({ message: 'Year or semester is not provided.' });
   try {
+    if (!req.session.token)
+      res.status(400).json({ message: 'Token not found' });
     const currentTime = Math.floor(Date.now() / 1000);
     const data = (
       await getRawAssignments(req.session.token.access_token, {
@@ -261,6 +267,8 @@ exports.getAssignedAssignments = async (req, res) => {
       .status(400)
       .json({ message: 'Year or semester is not provided.' });
   try {
+    if (!req.session.token.access_token)
+      res.status(400).json({ message: 'Token not found' });
     const currentTime = Math.floor(Date.now() / 1000);
     const data = (
       await getRawAssignments(req.session.token.access_token, {

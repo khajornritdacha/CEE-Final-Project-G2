@@ -32,150 +32,69 @@ const ItemStatus = {
 
 const BACKEND_URL = 'http://localhost:3000';
 
-let GLOBAL_PAGE = 0;
-
 // Main
 const app = document.getElementById('app');
-// Fetch Courses from backend
-const courses = [
-  {
-    cv_cid: '32201',
-    course_no: '2110221',
-    year: '2022',
-    semester: '2',
-    section: '0',
-    role: 'student',
-    title: 'Computer Engineering Essentials [Section 33-35]',
-    course_icon:
-      'https://mycourseville-default.s3.ap-southeast-1.amazonaws.com/useruploaded_course_files/2021_2/27352/course_icon/icon_cee_2022-1-16418931038922.png',
-  },
-  {
-    cv_cid: '32873',
-    course_no: '2301108.06',
-    year: '2022',
-    semester: '2',
-    section: '0',
-    role: 'student',
-    title: 'Calculus II [Section 6]',
-    course_icon:
-      'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2301108.png',
-  },
-  {
-    cv_cid: '31887',
-    course_no: '2304184',
-    year: '2022',
-    semester: '2',
-    section: '0',
-    role: 'student',
-    title: 'General Physics Laboratory II  [Section 1-12]',
-    course_icon:
-      'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
-  },
-  {
-    cv_cid: '31543',
-    course_no: 'SHECU.026',
-    year: '2022',
-    semester: '2',
-    section: '0',
-    role: 'student',
-    title: 'Laboratory Safety for First Year Student',
-    course_icon:
-      'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
-  },
-  {
-    cv_cid: '32200',
-    course_no: '2110215',
-    year: '2022',
-    semester: '2',
-    section: '0',
-    role: 'student',
-    title: 'Programming Methodology I [Section 1-2 and 33]',
-    course_icon:
-      'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon_eclipse_green.png',
-  },
-  {
-    cv_cid: '33808',
-    course_no: '2302127',
-    year: '2022',
-    semester: '2',
-    section: '0',
-    role: 'student',
-    title: 'General Chemistry  [Section 1-2]',
-    course_icon:
-      'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
-  },
-  {
-    cv_cid: '33985',
-    course_no: '2302163',
-    year: '2022',
-    semester: '2',
-    section: '0',
-    role: 'student',
-    title: 'General Chemistry Laboratory  [Section 1-7]',
-    course_icon:
-      'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
-  },
-  {
-    cv_cid: '34095',
-    course_no: '2304104',
-    year: '2022',
-    semester: '2',
-    section: '0',
-    role: 'student',
-    title: 'General Physics II  [Section 1-6]',
-    course_icon:
-      'https://mycourseville-default.s3.ap-southeast-1.amazonaws.com/useruploaded_course_files/2022_1/31104/course_icon/2304104-172879-16711638496707.svg',
-  },
-  {
-    cv_cid: '31927',
-    course_no: 'SHECU.004.MOOC',
-    year: '2022',
-    semester: '2',
-    section: '0',
-    role: 'student',
-    title: 'Laboratory Safety for First Year Student',
-    course_icon:
-      'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
-  },
-];
-// Render Page
-RoutePage(0);
+let GLOBAL_PAGE = 0;
+let courses = [];
 
-const getUserProfile = async () => {
+main();
+
+async function main() {
+  // Fetch Courses from backend
+  const res = await fetchCourses();
+  if (!res) return;
+  // Render Page
+  RoutePage(0);
+}
+
+async function logout() {
+  /** @type {RequestInit} */
+  const options = {
+    method: 'GET',
+    credentials: 'include',
+  };
+  try {
+    await fetch(`${BACKEND_URL}/courseville/logout`, options);
+  } catch (err) {
+    console.log('Logout error');
+    console.log(err);
+  }
+  LoginPage();
+}
+
+/**
+ *
+ * @return {Promise<Course[]>}
+ */
+async function fetchCourses() {
   /** @type {RequestInit} */
   const options = {
     method: 'GET',
     credentials: 'include',
   };
 
-  await fetch(`${BACKEND_URL}/courseville/get_profile_info`, options)
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data.user);
-      document.getElementById(
-        'eng-name-info'
-      ).innerHTML = `${data.user.title_en} ${data.user.firstname_en} ${data.user.lastname_en}`;
-      document.getElementById(
-        'thai-name-info'
-      ).innerHTML = `${data.user.title_th} ${data.user.firstname_th} ${data.user.lastname_th}`;
-    })
-    .catch((error) => console.error(error));
-};
-
-const logout = async () => {
-  window.location.href = `${BACKEND_URL}/courseville/logout`;
-};
+  try {
+    const url = new URL(`${BACKEND_URL}/assignments/courses`);
+    url.searchParams.append('year', '2022');
+    url.searchParams.append('semester', '2');
+    const res = await fetch(url, options);
+    const data = await res.json();
+    courses = data;
+    return data;
+  } catch (err) {
+    console.log('found error');
+    console.log(err);
+    await logout();
+    return null;
+  }
+}
 
 /**
  *
  * @param {string | undefined} course_no
  * @return {Promise<Item[]>}
  */
-const getAssignedItems = async (course_no) => {
-  let data = [];
-
-  // TODO: test API
-
+async function getAssignedItems(course_no) {
   /** @type {RequestInit} */
   const options = {
     method: 'GET',
@@ -186,14 +105,76 @@ const getAssignedItems = async (course_no) => {
   url.searchParams.append('year', '2022');
   url.searchParams.append('semester', '2');
   if (course_no) url.searchParams.append('course_no', course_no);
-  const res = await fetch(url, options);
-  const json = await res.json();
-  const items = json.data;
-  console.log(json);
-  console.log(items);
 
-  return data;
-};
+  try {
+    const res = await fetch(url, options);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.log('found error');
+    console.log(err);
+    await logout();
+    return null;
+  }
+}
+
+/**
+ *
+ * @param {string | undefined} course_no
+ * @return {Promise<Item[]>}
+ */
+async function getMissedItems(course_no) {
+  /** @type {RequestInit} */
+  const options = {
+    method: 'GET',
+    credentials: 'include',
+  };
+
+  const url = new URL(`${BACKEND_URL}/assignments/missed`);
+  url.searchParams.append('year', '2022');
+  url.searchParams.append('semester', '2');
+  if (course_no) url.searchParams.append('course_no', course_no);
+
+  try {
+    const res = await fetch(url, options);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.log('found error');
+    console.log(err);
+    await logout();
+    return null;
+  }
+}
+
+/**
+ *
+ * @param {string | undefined} course_no
+ * @return {Promise<Item[]>}
+ */
+async function getDoneItems(course_no) {
+  /** @type {RequestInit} */
+  const options = {
+    method: 'GET',
+    credentials: 'include',
+  };
+
+  const url = new URL(`${BACKEND_URL}/assignments/done`);
+  url.searchParams.append('year', '2022');
+  url.searchParams.append('semester', '2');
+  if (course_no) url.searchParams.append('course_no', course_no);
+
+  try {
+    const res = await fetch(url, options);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.log('found error');
+    console.log(err);
+    await logout();
+    return null;
+  }
+}
 
 /**
  * @param {string} html representing a single element
@@ -226,6 +207,7 @@ async function DashBoardPage(pageNo, items) {
   pageContainer.appendChild(CardList(items));
   pageContainer.appendChild(NavBar());
 
+  app.innerHTML = '';
   app.appendChild(pageContainer);
 }
 
@@ -240,7 +222,8 @@ function Heading() {
               <i class="fa-solid fa-bell fa-lg"></i>
               <i
                 class="fa-solid fa-right-from-bracket fa-lg"
-                style="margin-left: 30px"
+                style="margin-left: 30px; cursor: pointer"
+                id="logout-icon"
               ></i>
             </div>
           </section>
@@ -481,81 +464,82 @@ async function RoutePage(pageNo, course_no) {
   GLOBAL_PAGE = pageNo;
   app.innerHTML = '';
 
-  const items = [
-    {
-      due_time: '1682096340',
-      item_id: '849315',
-      course: {
-        cv_cid: '31887',
-        semester: '2',
-        course_icon:
-          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
-        course_no: '2304184',
-        title: 'General Physics Laboratory II  [Section 1-12]',
-        year: '2022',
-      },
-      student_id: '6532155621',
-      out_time: '1675040402',
-      is_finished: false,
-      title: 'PRETEST: การทดลองที่ 35 การเหนี่ยวนำแม่เหล็กไฟฟ้า ',
-    },
-    {
-      due_time: '1682096340',
-      item_id: '849211',
-      course: {
-        cv_cid: '31887',
-        semester: '2',
-        course_icon:
-          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
-        course_no: '2304184',
-        title: 'General Physics Laboratory II  [Section 1-12]',
-        year: '2022',
-      },
-      student_id: '6532155621',
-      out_time: '1675062331',
-      is_finished: false,
-      title: 'PRETEST: การทดลองที่ 17 เลนส์และกระจกโค้ง',
-    },
-    {
-      due_time: '1683133140',
-      item_id: '923116',
-      course: {
-        cv_cid: '33808',
-        semester: '2',
-        course_icon:
-          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
-        course_no: '2302127',
-        title: 'General Chemistry  [Section 1-2]',
-        year: '2022',
-      },
-      student_id: '6532155621',
-      out_time: '1681115461',
-      is_finished: false,
-      title: 'แบบฝึกหัดที่ 6-1 หลังกลางภาค: กรด-เบส ชุดที่ 1',
-    },
-    {
-      due_time: '1683133140',
-      item_id: '923106',
-      course: {
-        cv_cid: '33808',
-        semester: '2',
-        course_icon:
-          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
-        course_no: '2302127',
-        title: 'General Chemistry  [Section 1-2]',
-        year: '2022',
-      },
-      student_id: '6532155621',
-      out_time: '1681115559',
-      is_finished: false,
-      title: 'แบบฝึกหัดที่ 7 หลังกลางภาค: เคมีนิวเคลียร์',
-    },
-  ];
+  // const items = [
+  //   {
+  //     due_time: '1682096340',
+  //     item_id: '849315',
+  //     course: {
+  //       cv_cid: '31887',
+  //       semester: '2',
+  //       course_icon:
+  //         'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
+  //       course_no: '2304184',
+  //       title: 'General Physics Laboratory II  [Section 1-12]',
+  //       year: '2022',
+  //     },
+  //     student_id: '6532155621',
+  //     out_time: '1675040402',
+  //     is_finished: false,
+  //     title: 'PRETEST: การทดลองที่ 35 การเหนี่ยวนำแม่เหล็กไฟฟ้า ',
+  //   },
+  //   {
+  //     due_time: '1682096340',
+  //     item_id: '849211',
+  //     course: {
+  //       cv_cid: '31887',
+  //       semester: '2',
+  //       course_icon:
+  //         'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
+  //       course_no: '2304184',
+  //       title: 'General Physics Laboratory II  [Section 1-12]',
+  //       year: '2022',
+  //     },
+  //     student_id: '6532155621',
+  //     out_time: '1675062331',
+  //     is_finished: false,
+  //     title: 'PRETEST: การทดลองที่ 17 เลนส์และกระจกโค้ง',
+  //   },
+  //   {
+  //     due_time: '1683133140',
+  //     item_id: '923116',
+  //     course: {
+  //       cv_cid: '33808',
+  //       semester: '2',
+  //       course_icon:
+  //         'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
+  //       course_no: '2302127',
+  //       title: 'General Chemistry  [Section 1-2]',
+  //       year: '2022',
+  //     },
+  //     student_id: '6532155621',
+  //     out_time: '1681115461',
+  //     is_finished: false,
+  //     title: 'แบบฝึกหัดที่ 6-1 หลังกลางภาค: กรด-เบส ชุดที่ 1',
+  //   },
+  //   {
+  //     due_time: '1683133140',
+  //     item_id: '923106',
+  //     course: {
+  //       cv_cid: '33808',
+  //       semester: '2',
+  //       course_icon:
+  //         'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
+  //       course_no: '2302127',
+  //       title: 'General Chemistry  [Section 1-2]',
+  //       year: '2022',
+  //     },
+  //     student_id: '6532155621',
+  //     out_time: '1681115559',
+  //     is_finished: false,
+  //     title: 'แบบฝึกหัดที่ 7 หลังกลางภาค: เคมีนิวเคลียร์',
+  //   },
+  // ];
 
-  // let items;
-  // if (pageNo === 0) items = await getAssignedItems(course_no);
-  // else if (pageNo === 1) items = await getMissedItems(course_no);
-  // else if (pageNo === 2) items = await getDoneItems(course_no);
+  let items;
+  // if (!items) return;
+  if (pageNo === 0) items = await getAssignedItems(course_no);
+  else if (pageNo === 1) items = await getMissedItems(course_no);
+  else if (pageNo === 2) items = await getDoneItems(course_no);
 
   if (pageNo === 0) {
     DashBoardPage(0, items);
@@ -582,6 +566,7 @@ async function RoutePage(pageNo, course_no) {
   document.getElementById('done-icon').addEventListener('click', async () => {
     await RoutePage(2);
   });
+  document.getElementById('logout-icon').addEventListener('click', logout);
 
   const courseSelect = document.getElementById('course-select');
   // @ts-ignore
@@ -589,11 +574,14 @@ async function RoutePage(pageNo, course_no) {
 }
 
 function authorizeApplication() {
+  window.location.href = `${BACKEND_URL}/courseville/auth_app`;
   console.log('Authorize');
 }
 
 function LoginPage() {
-  document.getElementById('app').innerHTML = `
+  console.log('Render login page');
+  app.innerHTML = '';
+  app.innerHTML = `
     <section>
         <header>
             <h1 id="app-name">MyCourseville API Login Page Group <span id="group-id"></span></h1>

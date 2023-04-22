@@ -53,7 +53,7 @@ exports.accessToken = (req, res) => {
           // console.log(req.session);
           if (token) {
             res.writeHead(302, {
-              Location: `http://${process.env.frontendIPAddress}/home.html`,
+              Location: `http://${process.env.frontendIPAddress}`,
             });
             res.end();
           }
@@ -171,6 +171,5 @@ exports.getAssignmentDetail = (req, res) => {
 
 exports.logout = (req, res) => {
   req.session.destroy();
-  res.redirect(`http://${process.env.frontendIPAddress}/login.html`);
   res.end();
 };
