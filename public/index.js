@@ -32,6 +32,8 @@ const ItemStatus = {
 
 const BACKEND_URL = 'http://localhost:3000';
 
+let GLOBAL_PAGE = 0;
+
 // LoginPage();
 // const user = await getUserProfile();
 
@@ -45,7 +47,7 @@ const BACKEND_URL = 'http://localhost:3000';
 
 const app = document.getElementById('app');
 
-DashBoardPage();
+RoutePage(0);
 
 const getUserProfile = async () => {
   const options = {
@@ -83,7 +85,11 @@ function htmlToElement(html) {
   return template.content.firstChild;
 }
 
-function DashBoardPage() {
+/**
+ *
+ * @param {number} pageNo
+ */
+function DashBoardPage(pageNo) {
   const pageContainer = htmlToElement(`
     <div
     class="grid justify-center"
@@ -178,7 +184,7 @@ function Heading() {
             class="flex justify-between items-center"
             style="width: 100%; padding: 20px 0 14px"
           >
-            <h1 class="inline-block text-6xl">Assigned</h1>
+            <h1 class="inline-block text-6xl" id="page-header">Assigned</h1>
             <div class="flex justify-between primary">
               <i class="fa-solid fa-bell fa-lg"></i>
               <i
@@ -292,7 +298,9 @@ function SingleCard(item) {
           >
             <a
               class="card-title"
-              href="https://www.mycourseville.com/?q=courseville/worksheet/${item.course.cv_cid}/${item.item_id}"
+              href="https://www.mycourseville.com/?q=courseville/worksheet/${
+                item.course.cv_cid
+              }/${item.item_id}"
               target="_blank"
             >
               ${item.title}
@@ -302,7 +310,9 @@ function SingleCard(item) {
               style="
                 grid-column: 4 / span 1;
                 grid-row: 2 / span 3;
-                background-color: #e65f5c;
+                background-color: ${
+                  remainingTime.status === 0 ? '#4A4646' : '#e65f5c'
+                };
                 padding: 5px 7.5px;
                 color: white;
                 justify-self: end;
@@ -381,12 +391,47 @@ function CardList(items) {
 function NavBar() {
   const navBar = htmlToElement(`
       <nav class="flex items-center justify-around fixed bot-0 navbar">
-          <i class="fa-solid fa-house fa-2xl"></i>
-          <i class="fa-solid fa-question fa-2xl"></i>
-          <i class="fa-solid fa-check fa-2xl"></i>
+          <i class="fa-solid fa-house fa-2xl" id="home-icon" style="cursor: pointer"></i>
+          <i class="fa-solid fa-question fa-2xl" id="miss-icon" style="cursor: pointer"></i>
+          <i class="fa-solid fa-check fa-2xl" id="done-icon" style="cursor: pointer"></i>
       </nav>
       `);
+
   return navBar;
+}
+
+/**
+ *
+ * @param {number} pageNo
+ */
+function RoutePage(pageNo) {
+  GLOBAL_PAGE = pageNo;
+  app.innerHTML = '';
+  if (pageNo === 0) {
+    DashBoardPage(0);
+    document.getElementById('page-header').innerText = 'Assigned';
+    const icon = document.getElementById('home-icon');
+    icon.classList.add('primary');
+  } else if (pageNo === 1) {
+    DashBoardPage(1);
+    document.getElementById('page-header').innerText = 'Missed';
+    const icon = document.getElementById('miss-icon');
+    icon.classList.add('primary');
+  } else if (pageNo === 2) {
+    DashBoardPage(2);
+    document.getElementById('page-header').innerText = 'Done';
+    const icon = document.getElementById('done-icon');
+    icon.classList.add('primary');
+  }
+  document.getElementById('home-icon').addEventListener('click', () => {
+    RoutePage(0);
+  });
+  document.getElementById('miss-icon').addEventListener('click', () => {
+    RoutePage(1);
+  });
+  document.getElementById('done-icon').addEventListener('click', () => {
+    RoutePage(2);
+  });
 }
 
 function authorizeApplication() {
