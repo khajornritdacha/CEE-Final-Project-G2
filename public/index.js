@@ -170,8 +170,110 @@ function DashBoardPage(pageNo) {
     },
   ];
 
+  const courses = [
+    {
+      cv_cid: '32201',
+      course_no: '2110221',
+      year: '2022',
+      semester: '2',
+      section: '0',
+      role: 'student',
+      title: 'Computer Engineering Essentials [Section 33-35]',
+      course_icon:
+        'https://mycourseville-default.s3.ap-southeast-1.amazonaws.com/useruploaded_course_files/2021_2/27352/course_icon/icon_cee_2022-1-16418931038922.png',
+    },
+    {
+      cv_cid: '32873',
+      course_no: '2301108.06',
+      year: '2022',
+      semester: '2',
+      section: '0',
+      role: 'student',
+      title: 'Calculus II [Section 6]',
+      course_icon:
+        'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2301108.png',
+    },
+    {
+      cv_cid: '31887',
+      course_no: '2304184',
+      year: '2022',
+      semester: '2',
+      section: '0',
+      role: 'student',
+      title: 'General Physics Laboratory II  [Section 1-12]',
+      course_icon:
+        'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
+    },
+    {
+      cv_cid: '31543',
+      course_no: 'SHECU.026',
+      year: '2022',
+      semester: '2',
+      section: '0',
+      role: 'student',
+      title: 'Laboratory Safety for First Year Student',
+      course_icon:
+        'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
+    },
+    {
+      cv_cid: '32200',
+      course_no: '2110215',
+      year: '2022',
+      semester: '2',
+      section: '0',
+      role: 'student',
+      title: 'Programming Methodology I [Section 1-2 and 33]',
+      course_icon:
+        'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon_eclipse_green.png',
+    },
+    {
+      cv_cid: '33808',
+      course_no: '2302127',
+      year: '2022',
+      semester: '2',
+      section: '0',
+      role: 'student',
+      title: 'General Chemistry  [Section 1-2]',
+      course_icon:
+        'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
+    },
+    {
+      cv_cid: '33985',
+      course_no: '2302163',
+      year: '2022',
+      semester: '2',
+      section: '0',
+      role: 'student',
+      title: 'General Chemistry Laboratory  [Section 1-7]',
+      course_icon:
+        'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
+    },
+    {
+      cv_cid: '34095',
+      course_no: '2304104',
+      year: '2022',
+      semester: '2',
+      section: '0',
+      role: 'student',
+      title: 'General Physics II  [Section 1-6]',
+      course_icon:
+        'https://mycourseville-default.s3.ap-southeast-1.amazonaws.com/useruploaded_course_files/2022_1/31104/course_icon/2304104-172879-16711638496707.svg',
+    },
+    {
+      cv_cid: '31927',
+      course_no: 'SHECU.004.MOOC',
+      year: '2022',
+      semester: '2',
+      section: '0',
+      role: 'student',
+      title: 'Laboratory Safety for First Year Student',
+      course_icon:
+        'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
+    },
+  ];
+
   pageContainer.appendChild(Heading());
-  pageContainer.appendChild(SearchBar());
+  pageContainer.appendChild(SearchBar(courses));
   pageContainer.appendChild(CardList(items));
   pageContainer.appendChild(NavBar());
 
@@ -197,15 +299,18 @@ function Heading() {
   return heading;
 }
 
-function SearchBar() {
+/**
+ * @param {Course[]} courses
+ * @returns {ChildNode}
+ */
+function SearchBar(courses) {
+  const selectForm = htmlToElement(`
+  <select name="course_no" id="course-select" style="width: 100%">
+          <option value="" selected>Any Courses</option>
+        </select>
+  `);
   const searchBar = htmlToElement(`
       <form action="" class="flex justify-between" style="padding: 20px 0">
-        <select name="course_no" id="coursesSelect" style="width: 100%">
-          <option value="" selected>Any Courses</option>
-          <option value="2110101">Com Prog</option>
-          <option value="2110201">Com Eng Ess</option>
-          <option value="2320101">Cal 1</option>
-        </select>
         <button
           type="submit"
           class="rounded-md primary"
@@ -215,6 +320,23 @@ function SearchBar() {
         </button>
       </form>
     `);
+
+  for (const course of courses) {
+    const option = document.createElement('option');
+    option.value = course.course_no;
+    option.textContent = course.title;
+    selectForm.appendChild(option);
+  }
+  searchBar.insertBefore(selectForm, searchBar.firstChild);
+  searchBar.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    // @ts-ignore
+    const formData = new FormData(event.target);
+    console.log(formData);
+    console.log(formData.get('course_no'));
+
+    // handle Submit
+  });
   return searchBar;
 }
 
