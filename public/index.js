@@ -251,7 +251,7 @@ function Heading() {
           >
             <h1 class="inline-block text-6xl" id="page-header">Assigned</h1>
             <div class="flex justify-between primary">
-              <i class="fa-solid fa-bell fa-lg"></i>
+              <i class="fa-solid fa-bell fa-lg" style="visibility: hidden"></i>
               <i
                 class="fa-solid fa-right-from-bracket fa-lg"
                 style="margin-left: 30px; cursor: pointer"
@@ -403,11 +403,13 @@ function SingleCard(item) {
                 justify-self: end;
                 align-self: start;
                 background-color: ${
-                  remainingTime.status === 0 ? '#4A4646' : '#e65f5c'
+                  GLOBAL_PAGE === 2 || remainingTime.status === 0
+                    ? '#4A4646'
+                    : '#E65F5C'
                 };
               "
             >
-             ${remainingTime.leftTime} 
+             ${GLOBAL_PAGE === 2 ? 'Done' : remainingTime.leftTime} 
             </div>
             <p
               class="card-course-title"
@@ -426,8 +428,8 @@ function SingleCard(item) {
     <div
     class="text-sm rounded-lg"
     style="
-      grid-column: 4 / span 1;
-      grid-row: 7 / span 3;
+      grid-column: 3 / span 2;
+      grid-row: 8 / span 2;
       background-color: #006ee9;
       padding: 5px 7.5px;
       color: white;
@@ -436,17 +438,28 @@ function SingleCard(item) {
       cursor: pointer;
     "
   >
-    Done
+    ${GLOBAL_PAGE === 2 ? 'Unmark Done' : 'Mark Done'}
   </div>`);
-  doneBtn.addEventListener('click', async () => {
+
+  const handleClick = async () => {
     // @ts-ignore
     singleCard.classList.add('shimmerBG');
+
+    // @ts-ignore
+    doneBtn.style.backgroundColor = '#8799ad';
+
+    // @ts-ignore
+    doneBtn.style.cursor = 'initial';
+
+    doneBtn.removeEventListener('click', handleClick);
 
     const res = await updateItem(item);
     if (res) {
       singleCard.remove();
     }
-  });
+  };
+
+  doneBtn.addEventListener('click', handleClick);
   singleCard.appendChild(doneBtn);
   return singleCard;
 }
@@ -561,11 +574,12 @@ function LoginPage() {
   `;
   const loginBtn = document.getElementById('login-btn');
 
-  loginBtn.addEventListener('click', () => {
-    loginBtn.setAttribute('disabled', 'true');
+  const handleClick = () => {
     loginBtn.style.backgroundColor = '#8799ad';
     loginBtn.style.cursor = 'initial';
-    loginBtn.onclick = null;
+    loginBtn.removeEventListener('click', handleClick);
     authorizeApplication();
-  });
+  };
+
+  loginBtn.addEventListener('click', handleClick);
 }
