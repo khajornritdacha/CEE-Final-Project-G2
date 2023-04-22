@@ -91,6 +91,10 @@ const getCoursesAssignments = async (access_token, courses) => {
               return assignments.map((item) => ({
                 ...item,
                 course,
+                itemid: String(item.itemid),
+                created: String(item.created),
+                changed: String(item.changed),
+                duetime: String(item.duetime),
               }));
             },
           ],
@@ -107,10 +111,7 @@ const getCoursesAssignments = async (access_token, courses) => {
   }
 };
 
-const readAssignmentsDb = async (options, session) => {
-  console.log(session.profile);
-  console.log(session.profile.student);
-  console.log(session.profile.student.id);
+const readAssignmentsDb = async (options, student_id) => {
   const params = {
     TableName: process.env.aws_assignments_table_name,
   };
@@ -128,9 +129,7 @@ const readAssignmentsDb = async (options, session) => {
         (item) => item.course.course_no === options.course_no
       );
     }
-    Items = Items.filter(
-      (item) => item.student_id === session.profile.student.id
-    );
+    Items = Items.filter((item) => item.student_id === student_id); // TODO: change to student_id
     return Items;
   } catch (err) {
     console.error(err);
@@ -143,22 +142,24 @@ const readAssignmentsDb = async (options, session) => {
  * @param {*} session
  * @return {Promise<boolean>}
  */
-const canSkipSync = (session) => {
+const canSkipSync = (lastSyncTime) => {
   const currentTime = Date.now() / 1000;
   console.log('Check can skip sync');
-  if (
-    session?.profile?.lastSyncTime &&
-    currentTime - session.profile.lastSyncTime < 60 * 15
-  ) {
+  if (lastSyncTime && currentTime - lastSyncTime < 60 * 15) {
     console.log('Can skip sync');
     return true;
   }
   return false;
 };
 
-const syncAllCoursesAssignments = async (access_token, options, session) => {
+const syncAllCoursesAssignments = async (
+  access_token,
+  options,
+  student_id,
+  lastSyncTime
+) => {
   try {
-    if (canSkipSync()) return;
+    if (canSkipSync(lastSyncTime)) return null;
     const dbItems = await readAssignmentsDb(options);
     const dbItemsId = dbItems.map((item) => item.item_id);
     const courses = await fetchCourses(access_token, options);
@@ -169,12 +170,12 @@ const syncAllCoursesAssignments = async (access_token, options, session) => {
         updateItemRequest.push({
           PutRequest: {
             Item: {
-              item_id: { S: String(item.itemid) },
-              student_id: { S: session.profile.student.id },
+              item_id: { S: item.itemid },
+              student_id: { S: student_id }, // TODO: change to session.profile.student.id
               is_finished: { BOOL: false },
               title: { S: item.title },
-              out_time: { S: String(item.changed) },
-              due_time: { S: String(item.duetime) },
+              out_time: { S: item.changed },
+              due_time: { S: item.duetime },
               course: {
                 M: {
                   cv_cid: { S: String(item.course.cv_cid) },
@@ -191,25 +192,34 @@ const syncAllCoursesAssignments = async (access_token, options, session) => {
       }
     }
     await writeAssignments(updateItemRequest);
-    session.profile.lastSyncTime = Date.now() / 1000;
     console.log(`Synced ${updateItemRequest.length} assignments`);
+    return Date.now() / 1000;
   } catch (err) {
     console.log(err);
   }
 };
 
-const getRawAssignments = async (access_token, options, session) => {
+const getRawAssignments = async (
+  access_token,
+  options,
+  student_id,
+  lastSyncTime
+) => {
   try {
-    await syncAllCoursesAssignments(access_token, options, session);
-    const data = await readAssignmentsDb(options, session);
-    return data;
+    const newLastSyncTime = await syncAllCoursesAssignments(
+      access_token,
+      options,
+      student_id,
+      lastSyncTime
+    );
+    const data = await readAssignmentsDb(options, student_id);
+    return { data, lastSyncTime: newLastSyncTime };
   } catch (err) {
     console.log(err);
     return null;
   }
 };
 
-// TODO: test this route
 exports.getCourses = async (req, res) => {
   try {
     if (!req.session.token.access_token)
@@ -233,18 +243,17 @@ exports.getDoneAssignments = async (req, res) => {
       return res.status(400).json({ message: 'Token not found' });
     if (!req.session.profile.student.id)
       return res.status(400).json({ message: 'Invalid Student Id' });
-    const currentTime = Math.floor(Date.now() / 1000);
-    const data = (
-      await getRawAssignments(
-        req.session.token.access_token,
-        {
-          year,
-          semester,
-          course_no,
-        },
-        req.session
-      )
-    ).filter((item) => {
+    let { data, lastSyncTime } = await getRawAssignments(
+      req.session.token.access_token,
+      {
+        year,
+        semester,
+        course_no,
+      },
+      req.session.profile.student.id,
+      req.session.lastSyncTime
+    );
+    data = data.filter((item) => {
       return item.is_finished;
     });
 
@@ -252,6 +261,8 @@ exports.getDoneAssignments = async (req, res) => {
     data.sort((a, b) => {
       return b.due_time - a.due_time;
     });
+
+    if (lastSyncTime) req.session.lastSyncTime = lastSyncTime;
 
     return res.json(data);
   } catch (err) {
@@ -272,17 +283,17 @@ exports.getMissedAssignments = async (req, res) => {
     if (!req.session.profile.student.id)
       return res.status(400).json({ message: 'Invalid Student Id' });
     const currentTime = Math.floor(Date.now() / 1000);
-    const data = (
-      await getRawAssignments(
-        req.session.token.access_token,
-        {
-          year,
-          semester,
-          course_no,
-        },
-        req.session
-      )
-    ).filter((item) => {
+    let { data, lastSyncTime } = await getRawAssignments(
+      req.session.token.access_token,
+      {
+        year,
+        semester,
+        course_no,
+      },
+      req.session.profile.student.id,
+      req.session.lastSyncTime
+    );
+    data = data.filter((item) => {
       return !item.is_finished && currentTime >= Number(item.due_time);
     });
 
@@ -290,6 +301,8 @@ exports.getMissedAssignments = async (req, res) => {
     data.sort((a, b) => {
       return b.due_time - a.due_time;
     });
+
+    if (lastSyncTime) req.session.lastSyncTime = lastSyncTime;
 
     return res.json(data);
   } catch (err) {
@@ -299,8 +312,6 @@ exports.getMissedAssignments = async (req, res) => {
 };
 
 exports.getAssignedAssignments = async (req, res) => {
-  console.log('Current Session');
-  console.log(req?.session);
   const { year, semester, course_no } = req.query;
   if (!year || !semester)
     return res
@@ -313,19 +324,23 @@ exports.getAssignedAssignments = async (req, res) => {
       return res.status(400).json({ message: 'Invalid Student Id' });
 
     const currentTime = Math.floor(Date.now() / 1000);
-    const data = (
-      await getRawAssignments(
-        req.session.token.access_token,
-        {
-          year,
-          semester,
-          course_no,
-        },
-        req.session
-      )
-    ).filter((item) => {
+    let { data, lastSyncTime } = await getRawAssignments(
+      req.session.token.access_token,
+      {
+        year,
+        semester,
+        course_no,
+      },
+      req.session.profile.student.id,
+      req.session.lastSyncTime
+    );
+    data = data.filter((item) => {
       return !item.is_finished && currentTime < Number(item.due_time);
     });
+
+    if (lastSyncTime) {
+      req.session.lastSyncTime = lastSyncTime;
+    }
 
     // Sort by earliest due time
     data.sort((a, b) => {
@@ -340,7 +355,6 @@ exports.getAssignedAssignments = async (req, res) => {
 };
 
 exports.updateAssignment = async (req, res) => {
-  console.log(req.body);
   const item = {
     ...req.body,
     is_finished: !req.body.is_finished,

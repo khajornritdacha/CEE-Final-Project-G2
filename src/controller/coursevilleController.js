@@ -48,9 +48,7 @@ exports.accessToken = async (req, res) => {
       const token = tokenRes.data;
 
       if (!token)
-        return tokenRes
-          .status(400)
-          .json({ message: 'Error in authenticating' });
+        return res.status(400).json({ message: 'Error in authenticating' });
 
       req.session.token = token;
 
@@ -63,10 +61,20 @@ exports.accessToken = async (req, res) => {
         }
       );
       const profile = profileRes.data.data;
-      console.log(profile);
-      req.session.profile = profile;
 
-      console.log(req.session);
+      if (!profile)
+        return res.status(400).json({ message: 'Error in authenticating' });
+
+      req.session.profile = profile;
+      req.session.token = {
+        ...req.session.token,
+        student_id: profile.student.id,
+      };
+
+      const { firstname_en, lastname_en, id } = req.session.profile.student;
+      console.log(
+        `student ${id}(${firstname_en} ${lastname_en}) has logged in.`
+      );
 
       return res.redirect(302, `http://${process.env.frontendIPAddress}`);
     } catch (err) {
