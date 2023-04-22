@@ -50,7 +50,13 @@ const fetchCourses = async (access_token, options) => {
         Authorization: `Bearer ${access_token}`,
       },
     });
-    const courses = data.data.data.student;
+    const courses = data.data.data.student.map((course) => ({
+      ...course,
+      year: String(course.year),
+      semester: String(course.semester),
+      cv_cid: String(course.cv_cid),
+    }));
+    console.log(courses);
     if (!year || !semester)
       throw new Error('Year or semester is not provided.');
     const filteredCourses = courses.filter(
