@@ -177,6 +177,34 @@ async function getDoneItems(course_no) {
 }
 
 /**
+ *
+ * @param {Item} item
+ * @returns {Promise<Item> | null}
+ */
+async function updateItem(item) {
+  /** @type {RequestInit} */
+  const options = {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(item),
+  };
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/assignments`, options);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.log('found error');
+    console.log(err);
+    await logout();
+    return null;
+  }
+}
+
+/**
  * @param {string} html representing a single element
  * @return {ChildNode}
  */
@@ -350,6 +378,7 @@ function SingleCard(item) {
       <div
             class="grid grid-template-cols-4 grid-template-rows-9 rounded-lg card-container"
             style="width: 100%; height: 125px; padding: 10px;"
+            id="card-${item.item_id}"
           >
             <a
               class="card-title"
@@ -416,8 +445,14 @@ function SingleCard(item) {
   >
     Done
   </div>`);
-  doneBtn.addEventListener('click', () => {
-    console.log(item.item_id);
+  doneBtn.addEventListener('click', async () => {
+    // @ts-ignore
+    singleCard.classList.add('shimmerBG');
+
+    const res = await updateItem(item);
+    if (res) {
+      singleCard.remove();
+    }
   });
   singleCard.appendChild(doneBtn);
   return singleCard;

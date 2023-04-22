@@ -7,5 +7,6 @@ router.get('/', assignmentController.getAssignedAssignments);
 router.get('/missed', assignmentController.getMissedAssignments);
 router.get('/done', assignmentController.getDoneAssignments);
 router.get('/courses', assignmentController.getCourses);
+router.put('/', assignmentController.updateAssignment);
 
 module.exports = router;

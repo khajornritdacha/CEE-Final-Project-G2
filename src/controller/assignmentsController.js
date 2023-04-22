@@ -245,7 +245,7 @@ exports.getDoneAssignments = async (req, res) => {
         req.session
       )
     ).filter((item) => {
-      return item.is_finished && currentTime >= Number(item.due_time);
+      return item.is_finished;
     });
 
     // Sort by most recent due time
@@ -339,6 +339,25 @@ exports.getAssignedAssignments = async (req, res) => {
   }
 };
 
+exports.updateAssignment = async (req, res) => {
+  console.log(req.body);
+  const item = {
+    ...req.body,
+    is_finished: !req.body.is_finished,
+  };
+  const putParams = {
+    Item: item,
+    TableName: process.env.aws_assignments_table_name,
+  };
+  try {
+    const response = await docClient.send(new PutCommand(putParams));
+    res.status(201).json({ message: 'Edit item successfully' });
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(400);
+  }
+};
+
 exports.addAssignment = async (req, res) => {
   const item = {
     ...req.body,
@@ -349,7 +368,7 @@ exports.addAssignment = async (req, res) => {
   };
   try {
     const response = await docClient.send(new PutCommand(putParams));
-    res.send('Add item successfully');
+    res.status(201).json({ message: 'Add item successfully' });
   } catch (err) {
     console.error(err);
     res.sendStatus(400);
