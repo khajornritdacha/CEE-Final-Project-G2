@@ -41,8 +41,8 @@ main();
 
 async function main() {
   // Fetch Courses from backend
-  const res = await fetchCourses();
-  if (!res) return;
+  // const res = await fetchCourses();
+  // if (!res) return;
   // Render Page
   RoutePage(0);
 }
@@ -394,35 +394,24 @@ function SingleCard(item) {
               style="
                 grid-column: 4 / span 1;
                 grid-row: 2 / span 3;
-                background-color: ${
-                  remainingTime.status === 0 ? '#4A4646' : '#e65f5c'
-                };
                 padding: 5px 7.5px;
                 color: white;
                 justify-self: end;
                 align-self: start;
+                background-color: ${
+                  remainingTime.status === 0 ? '#4A4646' : '#e65f5c'
+                };
               "
             >
              ${remainingTime.leftTime} 
             </div>
             <p
-              class="text-sm"
-              style="
-                grid-column: 1 / span 2;
-                grid-row: 6 / span 2;
-                justify-self: start;
-                align-self: start;
-              "
+              class="card-course-title"
             >
               ${item.course.title}
             </p>
             <p
-              class="text-xs primary"
-              style="
-                grid-column: 1 / span 1;
-                grid-row: 8 / span 2;
-                justify-self: start;
-              "
+              class="primary course-create-date"
             >
               ${remainingTime.date}
             </p>
@@ -481,9 +470,9 @@ function CardList(items) {
 function NavBar() {
   const navBar = htmlToElement(`
       <nav class="flex items-center justify-around fixed bot-0 navbar">
-          <i class="fa-solid fa-house fa-2xl" id="home-icon" style="cursor: pointer"></i>
-          <i class="fa-solid fa-question fa-2xl" id="miss-icon" style="cursor: pointer"></i>
-          <i class="fa-solid fa-check fa-2xl" id="done-icon" style="cursor: pointer"></i>
+          <i class="fa-solid fa-house" id="home-icon" style="cursor: pointer"></i>
+          <i class="fa-solid fa-question" id="miss-icon" style="cursor: pointer"></i>
+          <i class="fa-solid fa-check" id="done-icon" style="cursor: pointer"></i>
       </nav>
       `);
 
@@ -499,82 +488,82 @@ async function RoutePage(pageNo, course_no) {
   GLOBAL_PAGE = pageNo;
   app.innerHTML = '';
 
-  // const items = [
-  //   {
-  //     due_time: '1682096340',
-  //     item_id: '849315',
-  //     course: {
-  //       cv_cid: '31887',
-  //       semester: '2',
-  //       course_icon:
-  //         'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
-  //       course_no: '2304184',
-  //       title: 'General Physics Laboratory II  [Section 1-12]',
-  //       year: '2022',
-  //     },
-  //     student_id: '6532155621',
-  //     out_time: '1675040402',
-  //     is_finished: false,
-  //     title: 'PRETEST: การทดลองที่ 35 การเหนี่ยวนำแม่เหล็กไฟฟ้า ',
-  //   },
-  //   {
-  //     due_time: '1682096340',
-  //     item_id: '849211',
-  //     course: {
-  //       cv_cid: '31887',
-  //       semester: '2',
-  //       course_icon:
-  //         'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
-  //       course_no: '2304184',
-  //       title: 'General Physics Laboratory II  [Section 1-12]',
-  //       year: '2022',
-  //     },
-  //     student_id: '6532155621',
-  //     out_time: '1675062331',
-  //     is_finished: false,
-  //     title: 'PRETEST: การทดลองที่ 17 เลนส์และกระจกโค้ง',
-  //   },
-  //   {
-  //     due_time: '1683133140',
-  //     item_id: '923116',
-  //     course: {
-  //       cv_cid: '33808',
-  //       semester: '2',
-  //       course_icon:
-  //         'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
-  //       course_no: '2302127',
-  //       title: 'General Chemistry  [Section 1-2]',
-  //       year: '2022',
-  //     },
-  //     student_id: '6532155621',
-  //     out_time: '1681115461',
-  //     is_finished: false,
-  //     title: 'แบบฝึกหัดที่ 6-1 หลังกลางภาค: กรด-เบส ชุดที่ 1',
-  //   },
-  //   {
-  //     due_time: '1683133140',
-  //     item_id: '923106',
-  //     course: {
-  //       cv_cid: '33808',
-  //       semester: '2',
-  //       course_icon:
-  //         'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
-  //       course_no: '2302127',
-  //       title: 'General Chemistry  [Section 1-2]',
-  //       year: '2022',
-  //     },
-  //     student_id: '6532155621',
-  //     out_time: '1681115559',
-  //     is_finished: false,
-  //     title: 'แบบฝึกหัดที่ 7 หลังกลางภาค: เคมีนิวเคลียร์',
-  //   },
-  // ];
+  const items = [
+    {
+      due_time: '1682096340',
+      item_id: '849315',
+      course: {
+        cv_cid: '31887',
+        semester: '2',
+        course_icon:
+          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
+        course_no: '2304184',
+        title: 'General Physics Laboratory II  [Section 1-12]',
+        year: '2022',
+      },
+      student_id: '6532155621',
+      out_time: '1675040402',
+      is_finished: false,
+      title: 'PRETEST: การทดลองที่ 35 การเหนี่ยวนำแม่เหล็กไฟฟ้า ',
+    },
+    {
+      due_time: '1682096340',
+      item_id: '849211',
+      course: {
+        cv_cid: '31887',
+        semester: '2',
+        course_icon:
+          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
+        course_no: '2304184',
+        title: 'General Physics Laboratory II  [Section 1-12]',
+        year: '2022',
+      },
+      student_id: '6532155621',
+      out_time: '1675062331',
+      is_finished: false,
+      title: 'PRETEST: การทดลองที่ 17 เลนส์และกระจกโค้ง',
+    },
+    {
+      due_time: '1683133140',
+      item_id: '923116',
+      course: {
+        cv_cid: '33808',
+        semester: '2',
+        course_icon:
+          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
+        course_no: '2302127',
+        title: 'General Chemistry  [Section 1-2]',
+        year: '2022',
+      },
+      student_id: '6532155621',
+      out_time: '1681115461',
+      is_finished: false,
+      title: 'แบบฝึกหัดที่ 6-1 หลังกลางภาค: กรด-เบส ชุดที่ 1',
+    },
+    {
+      due_time: '1683133140',
+      item_id: '923106',
+      course: {
+        cv_cid: '33808',
+        semester: '2',
+        course_icon:
+          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
+        course_no: '2302127',
+        title: 'General Chemistry  [Section 1-2]',
+        year: '2022',
+      },
+      student_id: '6532155621',
+      out_time: '1681115559',
+      is_finished: false,
+      title: 'แบบฝึกหัดที่ 7 หลังกลางภาค: เคมีนิวเคลียร์',
+    },
+  ];
 
-  let items;
+  // let items;
   // if (!items) return;
-  if (pageNo === 0) items = await getAssignedItems(course_no);
-  else if (pageNo === 1) items = await getMissedItems(course_no);
-  else if (pageNo === 2) items = await getDoneItems(course_no);
+  // if (pageNo === 0) items = await getAssignedItems(course_no);
+  // else if (pageNo === 1) items = await getMissedItems(course_no);
+  // else if (pageNo === 2) items = await getDoneItems(course_no);
 
   if (pageNo === 0) {
     DashBoardPage(0, items);
