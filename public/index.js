@@ -34,28 +34,120 @@ const BACKEND_URL = 'http://localhost:3000';
 
 let GLOBAL_PAGE = 0;
 
-// LoginPage();
-// const user = await getUserProfile();
-
-// TODO: handle if user is already logged in
-// if (user) {
-// Heading();
-// DashBoardPage();
-// } else
-//     LoginPage();
-// }
-
+// Main
 const app = document.getElementById('app');
-
+// Fetch Courses from backend
+const courses = [
+  {
+    cv_cid: '32201',
+    course_no: '2110221',
+    year: '2022',
+    semester: '2',
+    section: '0',
+    role: 'student',
+    title: 'Computer Engineering Essentials [Section 33-35]',
+    course_icon:
+      'https://mycourseville-default.s3.ap-southeast-1.amazonaws.com/useruploaded_course_files/2021_2/27352/course_icon/icon_cee_2022-1-16418931038922.png',
+  },
+  {
+    cv_cid: '32873',
+    course_no: '2301108.06',
+    year: '2022',
+    semester: '2',
+    section: '0',
+    role: 'student',
+    title: 'Calculus II [Section 6]',
+    course_icon:
+      'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2301108.png',
+  },
+  {
+    cv_cid: '31887',
+    course_no: '2304184',
+    year: '2022',
+    semester: '2',
+    section: '0',
+    role: 'student',
+    title: 'General Physics Laboratory II  [Section 1-12]',
+    course_icon:
+      'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
+  },
+  {
+    cv_cid: '31543',
+    course_no: 'SHECU.026',
+    year: '2022',
+    semester: '2',
+    section: '0',
+    role: 'student',
+    title: 'Laboratory Safety for First Year Student',
+    course_icon:
+      'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
+  },
+  {
+    cv_cid: '32200',
+    course_no: '2110215',
+    year: '2022',
+    semester: '2',
+    section: '0',
+    role: 'student',
+    title: 'Programming Methodology I [Section 1-2 and 33]',
+    course_icon:
+      'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon_eclipse_green.png',
+  },
+  {
+    cv_cid: '33808',
+    course_no: '2302127',
+    year: '2022',
+    semester: '2',
+    section: '0',
+    role: 'student',
+    title: 'General Chemistry  [Section 1-2]',
+    course_icon:
+      'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
+  },
+  {
+    cv_cid: '33985',
+    course_no: '2302163',
+    year: '2022',
+    semester: '2',
+    section: '0',
+    role: 'student',
+    title: 'General Chemistry Laboratory  [Section 1-7]',
+    course_icon:
+      'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
+  },
+  {
+    cv_cid: '34095',
+    course_no: '2304104',
+    year: '2022',
+    semester: '2',
+    section: '0',
+    role: 'student',
+    title: 'General Physics II  [Section 1-6]',
+    course_icon:
+      'https://mycourseville-default.s3.ap-southeast-1.amazonaws.com/useruploaded_course_files/2022_1/31104/course_icon/2304104-172879-16711638496707.svg',
+  },
+  {
+    cv_cid: '31927',
+    course_no: 'SHECU.004.MOOC',
+    year: '2022',
+    semester: '2',
+    section: '0',
+    role: 'student',
+    title: 'Laboratory Safety for First Year Student',
+    course_icon:
+      'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
+  },
+];
+// Render Page
 RoutePage(0);
 
 const getUserProfile = async () => {
+  /** @type {RequestInit} */
   const options = {
     method: 'GET',
     credentials: 'include',
   };
 
-  // @ts-ignore (Dont remove this line)
   await fetch(`${BACKEND_URL}/courseville/get_profile_info`, options)
     .then((response) => response.json())
     .then((data) => {
@@ -75,6 +167,35 @@ const logout = async () => {
 };
 
 /**
+ *
+ * @param {string | undefined} course_no
+ * @return {Promise<Item[]>}
+ */
+const getAssignedItems = async (course_no) => {
+  let data = [];
+
+  // TODO: test API
+
+  /** @type {RequestInit} */
+  const options = {
+    method: 'GET',
+    credentials: 'include',
+  };
+
+  const url = new URL(`${BACKEND_URL}/assignments`);
+  url.searchParams.append('year', '2022');
+  url.searchParams.append('semester', '2');
+  if (course_no) url.searchParams.append('course_no', course_no);
+  const res = await fetch(url, options);
+  const json = await res.json();
+  const items = json.data;
+  console.log(json);
+  console.log(items);
+
+  return data;
+};
+
+/**
  * @param {string} html representing a single element
  * @return {ChildNode}
  */
@@ -88,8 +209,9 @@ function htmlToElement(html) {
 /**
  *
  * @param {number} pageNo
+ * @param {Item[]} items
  */
-function DashBoardPage(pageNo) {
+async function DashBoardPage(pageNo, items) {
   const pageContainer = htmlToElement(`
     <div
     class="grid justify-center"
@@ -98,179 +220,6 @@ function DashBoardPage(pageNo) {
     grid-template-columns: 90%;
     margin-bottom: 100px;
     "></div>`);
-
-  const items = [
-    {
-      due_time: '1682096340',
-      item_id: '849315',
-      course: {
-        cv_cid: '31887',
-        semester: '2',
-        course_icon:
-          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
-        course_no: '2304184',
-        title: 'General Physics Laboratory II  [Section 1-12]',
-        year: '2022',
-      },
-      student_id: '6532155621',
-      out_time: '1675040402',
-      is_finished: false,
-      title: 'PRETEST: การทดลองที่ 35 การเหนี่ยวนำแม่เหล็กไฟฟ้า ',
-    },
-    {
-      due_time: '1682096340',
-      item_id: '849211',
-      course: {
-        cv_cid: '31887',
-        semester: '2',
-        course_icon:
-          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
-        course_no: '2304184',
-        title: 'General Physics Laboratory II  [Section 1-12]',
-        year: '2022',
-      },
-      student_id: '6532155621',
-      out_time: '1675062331',
-      is_finished: false,
-      title: 'PRETEST: การทดลองที่ 17 เลนส์และกระจกโค้ง',
-    },
-    {
-      due_time: '1683133140',
-      item_id: '923116',
-      course: {
-        cv_cid: '33808',
-        semester: '2',
-        course_icon:
-          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
-        course_no: '2302127',
-        title: 'General Chemistry  [Section 1-2]',
-        year: '2022',
-      },
-      student_id: '6532155621',
-      out_time: '1681115461',
-      is_finished: false,
-      title: 'แบบฝึกหัดที่ 6-1 หลังกลางภาค: กรด-เบส ชุดที่ 1',
-    },
-    {
-      due_time: '1683133140',
-      item_id: '923106',
-      course: {
-        cv_cid: '33808',
-        semester: '2',
-        course_icon:
-          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
-        course_no: '2302127',
-        title: 'General Chemistry  [Section 1-2]',
-        year: '2022',
-      },
-      student_id: '6532155621',
-      out_time: '1681115559',
-      is_finished: false,
-      title: 'แบบฝึกหัดที่ 7 หลังกลางภาค: เคมีนิวเคลียร์',
-    },
-  ];
-
-  const courses = [
-    {
-      cv_cid: '32201',
-      course_no: '2110221',
-      year: '2022',
-      semester: '2',
-      section: '0',
-      role: 'student',
-      title: 'Computer Engineering Essentials [Section 33-35]',
-      course_icon:
-        'https://mycourseville-default.s3.ap-southeast-1.amazonaws.com/useruploaded_course_files/2021_2/27352/course_icon/icon_cee_2022-1-16418931038922.png',
-    },
-    {
-      cv_cid: '32873',
-      course_no: '2301108.06',
-      year: '2022',
-      semester: '2',
-      section: '0',
-      role: 'student',
-      title: 'Calculus II [Section 6]',
-      course_icon:
-        'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2301108.png',
-    },
-    {
-      cv_cid: '31887',
-      course_no: '2304184',
-      year: '2022',
-      semester: '2',
-      section: '0',
-      role: 'student',
-      title: 'General Physics Laboratory II  [Section 1-12]',
-      course_icon:
-        'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
-    },
-    {
-      cv_cid: '31543',
-      course_no: 'SHECU.026',
-      year: '2022',
-      semester: '2',
-      section: '0',
-      role: 'student',
-      title: 'Laboratory Safety for First Year Student',
-      course_icon:
-        'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
-    },
-    {
-      cv_cid: '32200',
-      course_no: '2110215',
-      year: '2022',
-      semester: '2',
-      section: '0',
-      role: 'student',
-      title: 'Programming Methodology I [Section 1-2 and 33]',
-      course_icon:
-        'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon_eclipse_green.png',
-    },
-    {
-      cv_cid: '33808',
-      course_no: '2302127',
-      year: '2022',
-      semester: '2',
-      section: '0',
-      role: 'student',
-      title: 'General Chemistry  [Section 1-2]',
-      course_icon:
-        'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
-    },
-    {
-      cv_cid: '33985',
-      course_no: '2302163',
-      year: '2022',
-      semester: '2',
-      section: '0',
-      role: 'student',
-      title: 'General Chemistry Laboratory  [Section 1-7]',
-      course_icon:
-        'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
-    },
-    {
-      cv_cid: '34095',
-      course_no: '2304104',
-      year: '2022',
-      semester: '2',
-      section: '0',
-      role: 'student',
-      title: 'General Physics II  [Section 1-6]',
-      course_icon:
-        'https://mycourseville-default.s3.ap-southeast-1.amazonaws.com/useruploaded_course_files/2022_1/31104/course_icon/2304104-172879-16711638496707.svg',
-    },
-    {
-      cv_cid: '31927',
-      course_no: 'SHECU.004.MOOC',
-      year: '2022',
-      semester: '2',
-      section: '0',
-      role: 'student',
-      title: 'Laboratory Safety for First Year Student',
-      course_icon:
-        'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
-    },
-  ];
 
   pageContainer.appendChild(Heading());
   pageContainer.appendChild(SearchBar(courses));
@@ -332,10 +281,12 @@ function SearchBar(courses) {
     event.preventDefault();
     // @ts-ignore
     const formData = new FormData(event.target);
-    console.log(formData);
-    console.log(formData.get('course_no'));
 
     // handle Submit
+    // TODO: add animation while waiting for response
+    const course_no = formData.get('course_no').toString();
+    console.log(`Course no: ${course_no}`);
+    RoutePage(GLOBAL_PAGE, course_no);
   });
   return searchBar;
 }
@@ -385,7 +336,6 @@ function formatRemainingTime(unixDueTime) {
  * @param {string} time
  * @return {{status: ItemStatus, leftTime: string, date: string}}
  */
-// TODO: implement this function
 function parseDueTime(time) {
   const d = new Date(Number(time) * 1000);
   const currentTime = new Date().getTime() / 1000;
@@ -500,7 +450,7 @@ function CardList(items) {
       <section
             class="grid grid-template-cols-1 justify-items-center"
             style="row-gap: 20px;"
-            id="card-container"
+            id="card-list"
           >
       </section>
       `);
@@ -525,35 +475,117 @@ function NavBar() {
 /**
  *
  * @param {number} pageNo
+ * @param {string | undefined} [course_no]
  */
-function RoutePage(pageNo) {
+async function RoutePage(pageNo, course_no) {
   GLOBAL_PAGE = pageNo;
   app.innerHTML = '';
+
+  const items = [
+    {
+      due_time: '1682096340',
+      item_id: '849315',
+      course: {
+        cv_cid: '31887',
+        semester: '2',
+        course_icon:
+          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
+        course_no: '2304184',
+        title: 'General Physics Laboratory II  [Section 1-12]',
+        year: '2022',
+      },
+      student_id: '6532155621',
+      out_time: '1675040402',
+      is_finished: false,
+      title: 'PRETEST: การทดลองที่ 35 การเหนี่ยวนำแม่เหล็กไฟฟ้า ',
+    },
+    {
+      due_time: '1682096340',
+      item_id: '849211',
+      course: {
+        cv_cid: '31887',
+        semester: '2',
+        course_icon:
+          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/icon-default.png',
+        course_no: '2304184',
+        title: 'General Physics Laboratory II  [Section 1-12]',
+        year: '2022',
+      },
+      student_id: '6532155621',
+      out_time: '1675062331',
+      is_finished: false,
+      title: 'PRETEST: การทดลองที่ 17 เลนส์และกระจกโค้ง',
+    },
+    {
+      due_time: '1683133140',
+      item_id: '923116',
+      course: {
+        cv_cid: '33808',
+        semester: '2',
+        course_icon:
+          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
+        course_no: '2302127',
+        title: 'General Chemistry  [Section 1-2]',
+        year: '2022',
+      },
+      student_id: '6532155621',
+      out_time: '1681115461',
+      is_finished: false,
+      title: 'แบบฝึกหัดที่ 6-1 หลังกลางภาค: กรด-เบส ชุดที่ 1',
+    },
+    {
+      due_time: '1683133140',
+      item_id: '923106',
+      course: {
+        cv_cid: '33808',
+        semester: '2',
+        course_icon:
+          'https://www.mycourseville.com/sites/all/modules/courseville/files/thumbs/2302127.png',
+        course_no: '2302127',
+        title: 'General Chemistry  [Section 1-2]',
+        year: '2022',
+      },
+      student_id: '6532155621',
+      out_time: '1681115559',
+      is_finished: false,
+      title: 'แบบฝึกหัดที่ 7 หลังกลางภาค: เคมีนิวเคลียร์',
+    },
+  ];
+
+  // let items;
+  // if (pageNo === 0) items = await getAssignedItems(course_no);
+  // else if (pageNo === 1) items = await getMissedItems(course_no);
+  // else if (pageNo === 2) items = await getDoneItems(course_no);
+
   if (pageNo === 0) {
-    DashBoardPage(0);
+    DashBoardPage(0, items);
     document.getElementById('page-header').innerText = 'Assigned';
     const icon = document.getElementById('home-icon');
     icon.classList.add('primary');
   } else if (pageNo === 1) {
-    DashBoardPage(1);
+    DashBoardPage(1, items);
     document.getElementById('page-header').innerText = 'Missed';
     const icon = document.getElementById('miss-icon');
     icon.classList.add('primary');
   } else if (pageNo === 2) {
-    DashBoardPage(2);
+    DashBoardPage(2, items);
     document.getElementById('page-header').innerText = 'Done';
     const icon = document.getElementById('done-icon');
     icon.classList.add('primary');
   }
-  document.getElementById('home-icon').addEventListener('click', () => {
-    RoutePage(0);
+  document.getElementById('home-icon').addEventListener('click', async () => {
+    await RoutePage(0);
   });
-  document.getElementById('miss-icon').addEventListener('click', () => {
-    RoutePage(1);
+  document.getElementById('miss-icon').addEventListener('click', async () => {
+    await RoutePage(1);
   });
-  document.getElementById('done-icon').addEventListener('click', () => {
-    RoutePage(2);
+  document.getElementById('done-icon').addEventListener('click', async () => {
+    await RoutePage(2);
   });
+
+  const courseSelect = document.getElementById('course-select');
+  // @ts-ignore
+  if (course_no) courseSelect.value = course_no;
 }
 
 function authorizeApplication() {
