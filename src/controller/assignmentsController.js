@@ -129,7 +129,7 @@ const readAssignmentsDb = async (options, student_id) => {
         (item) => item.course.course_no === options.course_no
       );
     }
-    Items = Items.filter((item) => item.student_id === student_id); // TODO: change to student_id
+    Items = Items.filter((item) => item.student_id === student_id);
     return Items;
   } catch (err) {
     console.error(err);
@@ -139,7 +139,7 @@ const readAssignmentsDb = async (options, student_id) => {
 
 /**
  *
- * @param {*} session
+ * @param {string} lastSyncTime
  * @return {Promise<boolean>}
  */
 const canSkipSync = (lastSyncTime) => {
@@ -160,7 +160,7 @@ const syncAllCoursesAssignments = async (
 ) => {
   try {
     if (canSkipSync(lastSyncTime)) return null;
-    const dbItems = await readAssignmentsDb(options);
+    const dbItems = await readAssignmentsDb(options, student_id);
     const dbItemsId = dbItems.map((item) => item.item_id);
     const courses = await fetchCourses(access_token, options);
     const mcvItems = await getCoursesAssignments(access_token, courses);
