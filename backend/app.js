@@ -37,6 +37,11 @@ app.use('/items', itemsRoutes);
 app.use('/courseville', coursevilleRoutes);
 app.use('/assignments', assignmentsRoutes);
 
+app.get('/', (req, res) => {
+  console.log('In root route');
+  res.send('Hello world!');
+});
+
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 });
