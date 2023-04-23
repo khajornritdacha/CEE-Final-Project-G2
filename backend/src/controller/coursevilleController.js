@@ -190,12 +190,6 @@ exports.getAssignmentDetail = (req, res) => {
 };
 
 exports.logout = async (req, res) => {
-  try {
-    const data = await axios.get('https://www.mycourseville.com/api/logout');
-    console.log(data);
-  } catch (err) {
-    console.log(err);
-  }
   req.session.destroy();
   res.end();
 };

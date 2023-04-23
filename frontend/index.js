@@ -30,7 +30,7 @@ const ItemStatus = {
   MISSED: 2,
 };
 
-const BACKEND_URL = "http://localhost:3001";
+const BACKEND_URL = "http://localhost:3000";
 
 // Main
 const app = document.getElementById("app");
@@ -43,7 +43,10 @@ async function main() {
   // Fetch Courses from backend
   console.log("Fetching course");
   const res = await fetchCourses();
-  if (!res) return;
+  if (!res) {
+    LoginPage();
+    return;
+  }
   console.log("Fetch course successfully");
   console.log(res);
   // Render Page
@@ -512,6 +515,12 @@ async function RoutePage(pageNo, course_no) {
   DashBoardPage(GLOBAL_PAGE, []);
   const cardList = document.getElementById("card-list");
   cardList.appendChild(htmlToElement(`<h1>Loading...</h1>`));
+
+  const coursesSelect = document.getElementById("course-select");
+  coursesSelect.setAttribute("disabled", "true");
+  const submitBtn = coursesSelect.nextElementSibling;
+  submitBtn.setAttribute("disabled", "true");
+
   let items;
   if (pageNo === 0) items = await getAssignedItems(course_no);
   else if (pageNo === 1) items = await getMissedItems(course_no);
