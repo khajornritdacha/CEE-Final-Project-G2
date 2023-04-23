@@ -47,6 +47,8 @@ exports.accessToken = async (req, res) => {
       );
       const token = tokenRes.data;
 
+      console.log(token);
+
       if (!token)
         return res.status(400).json({ message: 'Error in authenticating' });
 
@@ -61,6 +63,8 @@ exports.accessToken = async (req, res) => {
         }
       );
       const profile = profileRes.data.data;
+
+      console.log(profile);
 
       if (!profile)
         return res.status(400).json({ message: 'Error in authenticating' });
@@ -185,7 +189,13 @@ exports.getAssignmentDetail = (req, res) => {
   res.end();
 };
 
-exports.logout = (req, res) => {
+exports.logout = async (req, res) => {
+  try {
+    const data = await axios.get('https://www.mycourseville.com/api/logout');
+    console.log(data);
+  } catch (err) {
+    console.log(err);
+  }
   req.session.destroy();
   res.end();
 };

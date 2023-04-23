@@ -50,6 +50,10 @@ const fetchCourses = async (access_token, options) => {
         Authorization: `Bearer ${access_token}`,
       },
     });
+
+    // no courses are found
+    if (!data?.data?.data?.student) return [];
+
     const courses = data.data.data.student.map((course) => ({
       ...course,
       year: String(course.year),
@@ -67,7 +71,7 @@ const fetchCourses = async (access_token, options) => {
     return filteredCourses;
   } catch (err) {
     console.log(err);
-    return null;
+    return [];
   }
 };
 

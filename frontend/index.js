@@ -30,10 +30,10 @@ const ItemStatus = {
   MISSED: 2,
 };
 
-const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = "http://localhost:3001";
 
 // Main
-const app = document.getElementById('app');
+const app = document.getElementById("app");
 let GLOBAL_PAGE = 0;
 let courses = [];
 
@@ -41,10 +41,10 @@ main();
 
 async function main() {
   // Fetch Courses from backend
-  console.log('Fetching course');
+  console.log("Fetching course");
   const res = await fetchCourses();
   if (!res) return;
-  console.log('Fetch course successfully');
+  console.log("Fetch course successfully");
   console.log(res);
   // Render Page
   RoutePage(0);
@@ -54,13 +54,13 @@ async function main() {
 async function logout() {
   /** @type {RequestInit} */
   const options = {
-    method: 'GET',
-    credentials: 'include',
+    method: "GET",
+    credentials: "include",
   };
   try {
     await fetch(`${BACKEND_URL}/courseville/logout`, options);
   } catch (err) {
-    console.log('Logout error');
+    console.log("Logout error");
     console.log(err);
   }
   LoginPage();
@@ -73,20 +73,20 @@ async function logout() {
 async function fetchCourses() {
   /** @type {RequestInit} */
   const options = {
-    method: 'GET',
-    credentials: 'include',
+    method: "GET",
+    credentials: "include",
   };
 
   try {
     const url = new URL(`${BACKEND_URL}/assignments/courses`);
-    url.searchParams.append('year', '2022');
-    url.searchParams.append('semester', '2');
+    url.searchParams.append("year", "2022");
+    url.searchParams.append("semester", "2");
     const res = await fetch(url, options);
     const data = await res.json();
     courses = data;
     return data;
   } catch (err) {
-    console.log('found error');
+    console.log("found error");
     console.log(err);
     await logout();
     return null;
@@ -101,21 +101,21 @@ async function fetchCourses() {
 async function getAssignedItems(course_no) {
   /** @type {RequestInit} */
   const options = {
-    method: 'GET',
-    credentials: 'include',
+    method: "GET",
+    credentials: "include",
   };
 
   const url = new URL(`${BACKEND_URL}/assignments`);
-  url.searchParams.append('year', '2022');
-  url.searchParams.append('semester', '2');
-  if (course_no) url.searchParams.append('course_no', course_no);
+  url.searchParams.append("year", "2022");
+  url.searchParams.append("semester", "2");
+  if (course_no) url.searchParams.append("course_no", course_no);
 
   try {
     const res = await fetch(url, options);
     const data = await res.json();
     return data;
   } catch (err) {
-    console.log('found error');
+    console.log("found error");
     console.log(err);
     await logout();
     return null;
@@ -130,21 +130,21 @@ async function getAssignedItems(course_no) {
 async function getMissedItems(course_no) {
   /** @type {RequestInit} */
   const options = {
-    method: 'GET',
-    credentials: 'include',
+    method: "GET",
+    credentials: "include",
   };
 
   const url = new URL(`${BACKEND_URL}/assignments/missed`);
-  url.searchParams.append('year', '2022');
-  url.searchParams.append('semester', '2');
-  if (course_no) url.searchParams.append('course_no', course_no);
+  url.searchParams.append("year", "2022");
+  url.searchParams.append("semester", "2");
+  if (course_no) url.searchParams.append("course_no", course_no);
 
   try {
     const res = await fetch(url, options);
     const data = await res.json();
     return data;
   } catch (err) {
-    console.log('found error');
+    console.log("found error");
     console.log(err);
     await logout();
     return null;
@@ -159,21 +159,21 @@ async function getMissedItems(course_no) {
 async function getDoneItems(course_no) {
   /** @type {RequestInit} */
   const options = {
-    method: 'GET',
-    credentials: 'include',
+    method: "GET",
+    credentials: "include",
   };
 
   const url = new URL(`${BACKEND_URL}/assignments/done`);
-  url.searchParams.append('year', '2022');
-  url.searchParams.append('semester', '2');
-  if (course_no) url.searchParams.append('course_no', course_no);
+  url.searchParams.append("year", "2022");
+  url.searchParams.append("semester", "2");
+  if (course_no) url.searchParams.append("course_no", course_no);
 
   try {
     const res = await fetch(url, options);
     const data = await res.json();
     return data;
   } catch (err) {
-    console.log('found error');
+    console.log("found error");
     console.log(err);
     await logout();
     return null;
@@ -188,10 +188,10 @@ async function getDoneItems(course_no) {
 async function updateItem(item) {
   /** @type {RequestInit} */
   const options = {
-    method: 'PUT',
-    credentials: 'include',
+    method: "PUT",
+    credentials: "include",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(item),
   };
@@ -201,7 +201,7 @@ async function updateItem(item) {
     const data = await res.json();
     return data;
   } catch (err) {
-    console.log('found error');
+    console.log("found error");
     console.log(err);
     await logout();
     return null;
@@ -213,7 +213,7 @@ async function updateItem(item) {
  * @return {ChildNode}
  */
 function htmlToElement(html) {
-  const template = document.createElement('template');
+  const template = document.createElement("template");
   html = html.trim();
   template.innerHTML = html;
   return template.content.firstChild;
@@ -239,17 +239,18 @@ async function DashBoardPage(pageNo, items) {
   pageContainer.appendChild(CardList(items));
   pageContainer.appendChild(NavBar());
 
-  app.innerHTML = '';
+  app.innerHTML = "";
   app.appendChild(pageContainer);
 }
 
 function Heading() {
+  const headingTitle = ["Assigend", "Missed", "Done"];
   const heading = htmlToElement(`
       <section
             class="flex justify-between items-center"
             style="width: 100%; padding: 20px 0 14px"
           >
-            <h1 class="inline-block text-6xl" id="page-header">Assigned</h1>
+            <h1 class="inline-block text-6xl" id="page-header">${headingTitle[GLOBAL_PAGE]}</h1>
             <div class="flex justify-between primary">
               <i class="fa-solid fa-bell fa-lg" style="visibility: hidden"></i>
               <i
@@ -286,20 +287,20 @@ function SearchBar(courses) {
     `);
 
   for (const course of courses) {
-    const option = document.createElement('option');
+    const option = document.createElement("option");
     option.value = course.course_no;
     option.textContent = course.title;
     selectForm.appendChild(option);
   }
   searchBar.insertBefore(selectForm, searchBar.firstChild);
-  searchBar.addEventListener('submit', async (event) => {
+  searchBar.addEventListener("submit", async (event) => {
     event.preventDefault();
     // @ts-ignore
     const formData = new FormData(event.target);
 
     // handle Submit
     // TODO: add animation while waiting for response
-    const course_no = formData.get('course_no').toString();
+    const course_no = formData.get("course_no").toString();
     console.log(`Course no: ${course_no}`);
     RoutePage(GLOBAL_PAGE, course_no);
   });
@@ -326,23 +327,23 @@ function formatRemainingTime(unixDueTime) {
 
   if (diff > 365 * 24 * 3600) {
     const years = Math.floor(diff / (365 * 24 * 3600));
-    return `${years} year${years > 1 ? 's' : ''}`;
+    return `${years} year${years > 1 ? "s" : ""}`;
   } else if (diff > 30 * 24 * 3600) {
     const months = Math.floor(diff / (30 * 24 * 3600));
-    return `${months} month${months > 1 ? 's' : ''}`;
+    return `${months} month${months > 1 ? "s" : ""}`;
   } else if (diff > 24 * 3600) {
     const days = Math.floor(diff / (24 * 3600));
-    return `${days} day${days > 1 ? 's' : ''}`;
+    return `${days} day${days > 1 ? "s" : ""}`;
   } else if (diff > 3600) {
     const hours = Math.floor(diff / 3600);
-    return `${hours} hour${hours > 1 ? 's' : ''}`;
+    return `${hours} hour${hours > 1 ? "s" : ""}`;
   } else if (diff > 60) {
     const minutes = Math.floor(diff / 60);
-    return `${minutes} minute${minutes > 1 ? 's' : ''}`;
+    return `${minutes} minute${minutes > 1 ? "s" : ""}`;
   } else if (diff > 0) {
-    return '< 1 minute';
+    return "< 1 minute";
   } else {
-    return 'missed';
+    return "missed";
   }
 }
 
@@ -356,8 +357,8 @@ function parseDueTime(time) {
   const currentTime = new Date().getTime() / 1000;
   const diffTime = Number(time) - currentTime;
   const date = d
-    .toLocaleTimeString([], { day: 'numeric', month: 'short' })
-    .split(',')[0];
+    .toLocaleTimeString([], { day: "numeric", month: "short" })
+    .split(",")[0];
   const leftTime = formatRemainingTime(time);
   const status =
     diffTime < 0
@@ -404,12 +405,12 @@ function SingleCard(item) {
                 align-self: start;
                 background-color: ${
                   GLOBAL_PAGE === 2 || remainingTime.status === 0
-                    ? '#4A4646'
-                    : '#E65F5C'
+                    ? "#4A4646"
+                    : "#E65F5C"
                 };
               "
             >
-             ${GLOBAL_PAGE === 2 ? 'Done' : remainingTime.leftTime} 
+             ${GLOBAL_PAGE === 2 ? "Done" : remainingTime.leftTime} 
             </div>
             <p
               class="card-course-title"
@@ -438,20 +439,20 @@ function SingleCard(item) {
       cursor: pointer;
     "
   >
-    ${GLOBAL_PAGE === 2 ? 'Unmark Done' : 'Mark Done'}
+    ${GLOBAL_PAGE === 2 ? "Unmark Done" : "Mark Done"}
   </div>`);
 
   const handleClick = async () => {
     // @ts-ignore
-    singleCard.classList.add('shimmerBG');
+    singleCard.classList.add("shimmerBG");
 
     // @ts-ignore
-    doneBtn.style.backgroundColor = '#8799ad';
+    doneBtn.style.backgroundColor = "#8799ad";
 
     // @ts-ignore
-    doneBtn.style.cursor = 'initial';
+    doneBtn.style.cursor = "initial";
 
-    doneBtn.removeEventListener('click', handleClick);
+    doneBtn.removeEventListener("click", handleClick);
 
     const res = await updateItem(item);
     if (res) {
@@ -459,7 +460,7 @@ function SingleCard(item) {
     }
   };
 
-  doneBtn.addEventListener('click', handleClick);
+  doneBtn.addEventListener("click", handleClick);
   singleCard.appendChild(doneBtn);
   return singleCard;
 }
@@ -503,57 +504,60 @@ function NavBar() {
  */
 async function RoutePage(pageNo, course_no) {
   GLOBAL_PAGE = pageNo;
-  app.innerHTML = '';
+  app.innerHTML = "";
 
-  console.log('Getting items');
+  console.log("Getting items");
 
+  // Render skeleton webite while wating for data
+  DashBoardPage(GLOBAL_PAGE, []);
+  const cardList = document.getElementById("card-list");
+  cardList.appendChild(htmlToElement(`<h1>Loading...</h1>`));
   let items;
   if (pageNo === 0) items = await getAssignedItems(course_no);
   else if (pageNo === 1) items = await getMissedItems(course_no);
   else if (pageNo === 2) items = await getDoneItems(course_no);
 
-  console.log('Items:');
-  console.log(items);
+  console.log("Get items successfully");
 
   if (pageNo === 0) {
     DashBoardPage(0, items);
-    document.getElementById('page-header').innerText = 'Assigned';
-    const icon = document.getElementById('home-icon');
-    icon.classList.add('primary');
+    document.getElementById("page-header").innerText = "Assigned";
+    const icon = document.getElementById("home-icon");
+    icon.classList.add("primary");
   } else if (pageNo === 1) {
     DashBoardPage(1, items);
-    document.getElementById('page-header').innerText = 'Missed';
-    const icon = document.getElementById('miss-icon');
-    icon.classList.add('primary');
+    document.getElementById("page-header").innerText = "Missed";
+    const icon = document.getElementById("miss-icon");
+    icon.classList.add("primary");
   } else if (pageNo === 2) {
     DashBoardPage(2, items);
-    document.getElementById('page-header').innerText = 'Done';
-    const icon = document.getElementById('done-icon');
-    icon.classList.add('primary');
+    document.getElementById("page-header").innerText = "Done";
+    const icon = document.getElementById("done-icon");
+    icon.classList.add("primary");
   }
-  document.getElementById('home-icon').addEventListener('click', async () => {
+  document.getElementById("home-icon").addEventListener("click", async () => {
     await RoutePage(0);
   });
-  document.getElementById('miss-icon').addEventListener('click', async () => {
+  document.getElementById("miss-icon").addEventListener("click", async () => {
     await RoutePage(1);
   });
-  document.getElementById('done-icon').addEventListener('click', async () => {
+  document.getElementById("done-icon").addEventListener("click", async () => {
     await RoutePage(2);
   });
-  document.getElementById('logout-icon').addEventListener('click', logout);
+  document.getElementById("logout-icon").addEventListener("click", logout);
 
-  const courseSelect = document.getElementById('course-select');
+  const courseSelect = document.getElementById("course-select");
   // @ts-ignore
   if (course_no) courseSelect.value = course_no;
 }
 
 function authorizeApplication() {
   window.location.href = `${BACKEND_URL}/courseville/auth_app`;
-  console.log('Authorize');
+  console.log("Authorize");
 }
 
 function LoginPage() {
-  app.innerHTML = '';
+  app.innerHTML = "";
   app.innerHTML = `
   <main class="login-page-container">
   <div class="login-left">
@@ -572,14 +576,14 @@ function LoginPage() {
   </div>
 </main>
   `;
-  const loginBtn = document.getElementById('login-btn');
+  const loginBtn = document.getElementById("login-btn");
 
   const handleClick = () => {
-    loginBtn.style.backgroundColor = '#8799ad';
-    loginBtn.style.cursor = 'initial';
-    loginBtn.removeEventListener('click', handleClick);
+    loginBtn.style.backgroundColor = "#8799ad";
+    loginBtn.style.cursor = "initial";
+    loginBtn.removeEventListener("click", handleClick);
     authorizeApplication();
   };
 
-  loginBtn.addEventListener('click', handleClick);
+  loginBtn.addEventListener("click", handleClick);
 }
